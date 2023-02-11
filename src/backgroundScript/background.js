@@ -3,19 +3,44 @@
 // WebAssembly.instantiateStreaming(fetch('../modules/sqlite3.wasm'), importObject)
 // .then(obj => obj.instance.exports.exported_func());//output 42 in console
 
-import createSqlWasm from "../modules/sql-wasm-browser"
 import { sortObjectArrayByKey } from "../util"
+   
+function addCardAndNote(db, fields = {}, collection='') {
+  db.exec(`
+  INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country)
+  VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+  `)  
+}
 
+{
+  
+}
+
+function addNote(db, fields = {}) {
+  db.exec(`
+  INSERT INTO notes (CustomerName, ContactName, Address, City, PostalCode, Country)
+  VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+  `)  
+}
 
 (async () => {
-  const ankiDbResponse = await fetch('C:/Users/kocze/AppData/Roaming/Anki2/Benutzer 1/collection.media.db2')
-    // if (ankiDbResponse.ok) {
-  let ankiDb = await ankiDbResponse.text()
-  console.log(ankiDb)
+  let ankiDbAsBuffer
+  const ankiDbResponse = await fetch('C:/Users/kocze/AppData/Roaming/Anki2/Benutzer 1/collection.anki2')
+    if (ankiDbResponse.ok) {
+      // NOTE: we want response as an array of bytes as per sql.js documentation, not `.text()`
+      // NOTE2: apparently sql.js wants an `Uint8Array` and not anything else
+      ankiDbAsBuffer = new Uint8Array(await ankiDbResponse.arrayBuffer())
+    }
 
-const sql = await createSqlWasm({ wasmUrl: "../modules/sqlite3.wasm" })
-const db = new sql.Database(ankiDb)
-let res = db.exec('SELECT * FROM cards')
+
+
+
+const sqljs = await createSqlWasm({ wasmUrl: "../modules/sqlite3.wasm" })
+const ankiDb = new sqljs.Database(ankiDbAsBuffer)
+console.log(ankiDbAsBuffer)
+console.log(typeof ankiDbAsBuffer)
+let res = ankiDb.exec('SELECT * FROM notes')
+console.log(res)
 // structure:
 /* {
   LANGUAGE: {

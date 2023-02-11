@@ -30,6 +30,10 @@ function serve() {
 }
 
 function makeConfig(input, output, enableDev = false) {
+	if (!output) {
+		output = input.slice(0,input.lastIndexOf('.'))+'.bundle.js'
+		console.log(output)
+	}
 	return {
 		inlineDynamicImports: true,
 		input: `src/${input}`,
@@ -84,9 +88,11 @@ function makeConfig(input, output, enableDev = false) {
 
 export default [
 	// content.js script
-	makeConfig('contentScript/content.js', 'contentScript/content.bundle.js'),
+	makeConfig('contentScript/content.js'),
 	// options.html page
-	makeConfig('optionsPage/options.js', 'optionsPage/options.bundle.js'),
+	makeConfig('optionsPage/options.js'),
 	// background.js script (DIDN'T REALLY NEED ROLLUP BUT OK)
-	makeConfig('backgroundScript/background.js', 'backgroundScript/background.bundle.js'),
+	makeConfig('backgroundScript/background.js'),
+	// popup.js bundle attached to popup.html
+	makeConfig('popup/popup.js'),
 ];
