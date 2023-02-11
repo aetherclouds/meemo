@@ -32,7 +32,6 @@ function serve() {
 function makeConfig(input, output, enableDev = false) {
 	if (!output) {
 		output = input.slice(0,input.lastIndexOf('.'))+'.bundle.js'
-		console.log(output)
 	}
 	return {
 		inlineDynamicImports: true,
