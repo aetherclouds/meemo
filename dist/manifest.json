@@ -27,8 +27,8 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "/icons/*.png, 'modules/*"],
-        "matches": [ "http://*/*", "https://*/*", "ftp://*/*", "file:///*" ]
+        "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*.png", "modules/*"],
+        "matches": [ "<all_urls>"]
       }
     ] 
   }

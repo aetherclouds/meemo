@@ -6,7 +6,6 @@ import ToolBar from './ToolBar.svelte';
 
 export let rootNode;
 export let parentDocument;
-const distanceToMouse = 8
 
 let isExtensionOn = false
 let pageWidth
@@ -20,6 +19,13 @@ let hoverX = 0,
 let hasSelection = false
 let isMakingSelection = false
 let previousWord
+
+let settings = {
+    UISize: 1,
+    distanceToMouse: 8,
+
+}
+
 
 let hoverContent = []
 
@@ -48,8 +54,14 @@ function readyParent() {
     // we'll assume this is always constant cuz it probably is + saves on performance
     pageWidth = Util.getPageWidth()
 
+
+    // load settings
+    chrome.runtime.sendMessage({type: 'getSettings'}, response => {
+
+    })
+
     // check if extension is globally enabled 
-    chrome.runtime.sendMessage({type: 'isExtensionOn'}, function(response) {
+    chrome.runtime.sendMessage({type: 'isExtensionOn'}, response => {
         console.log('checking: isExtensionOn? '+response.isExtensionOn)
         // check if isExtensionOn is already on so we don't run this function twice
         if (response.isExtensionOn && !isExtensionOn) {
@@ -71,6 +83,8 @@ chrome.runtime.onMessage.addListener(
                 console.log('disableExtension')
                 disableExtension()
                 break
+            case 'updateSize':
+
             default:
                 break
         }
@@ -139,14 +153,14 @@ function handleSelectionChange(e) {
         isMakingSelection = true
         hoverContent = [{
             component: ToolBar,
-            isSvelteCode: true
+            isSvelteComponent: true
         }]
         showHover()
     }
 
     hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
     // https://stackoverflow.com/a/7436602
-    hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - distanceToMouse
+    hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - settings.distanceToMouse
     }
 
 function handleMouseMove(e) {
@@ -211,17 +225,10 @@ function handleMouseMove(e) {
 function updateHoverPos(e) {
     if (!isMakingSelection) {
         // we don't want it going out of the window so we set a max horizontal distance it can go
-        hoverX = Math.min(window.innerWidth - hoverNode.offsetWidth - distanceToMouse - 10, e.pageX + distanceToMouse)
-        // console.log(pageWidth, ' - ', hoverNode.offsetWidth, ' - ', distanceToMouse, ' = ', pageWidth - hoverNode.offsetWidth - distanceToMouse)
-        // console.log(e.pageX,' + ', distanceToMouse,' = ', e.pageX + distanceToMouse)
-        // showHoverOnLeft = (pageWidth - 20) < (e.pageX + hoverNode.offsetWidth) 
-        // if (showHoverOnLeft) {
-        //     hoverX = e.pageX - hoverNode.offsetWidth - distanceToMouse
-        // } else {
-        //     hoverX = e.pageX + distanceToMouse
-        // }
+        hoverX = Math.min(window.innerWidth - hoverNode.offsetWidth - settings.distanceToMouse - 10, e.pageX + settings.distanceToMouse)
+
         // same concept for vertical distance, we just don't want it crossing <0 (also giving it an offest of 10 so it doesn't glue to the edge)
-        hoverY = Math.max(e.pageY - hoverNode.offsetHeight - distanceToMouse, 10)
+        hoverY = Math.max(e.pageY - hoverNode.offsetHeight - settings.distanceToMouse, 10)
     }
 }
 
@@ -234,13 +241,13 @@ function hoverIntoSelectionOptions() {
 <div id="hover" bind:this={hoverNode}>
     <div id="hover-content"  bind:this={hoverContentNode}>
         {#each hoverContent as entry}
-            {#if !entry.isSvelteCode}
+            {#if !entry.isSvelteComponent},
+                <svelte:component this={entry.component} class="entry"/>
+            {:else}
                 <div class="entry {entry.gender}">
                     <img src="{entry.flagURL}" class="flag" alt="{entry.language} flag"/>
                     {entry.wordForGender}
                 </div>
-            {:else}
-                <svelte:component this={entry.component} class="entry"/>
             {/if}
         {/each}
     </div>

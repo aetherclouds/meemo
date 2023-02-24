@@ -4,6 +4,9 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
+import { format } from 'path';
+
+import { windi } from 'svelte-windicss-preprocess';
 
 
 const production = !process.env.ROLLUP_WATCH;
@@ -29,10 +32,10 @@ function serve() {
 	};
 }
 
-function makeConfig(input, output, enableDev = false) {
+function makeConfig(input, output, useWindiCss = false) {
 	if (!output) {
 		output = input.slice(0,input.lastIndexOf('.'))+'.bundle.js'
-	}
+	}	
 	return {
 		inlineDynamicImports: true,
 		input: `src/${input}`,
@@ -44,6 +47,9 @@ function makeConfig(input, output, enableDev = false) {
 		},
 		plugins: [
 			svelte({
+				preprocess: [
+					...(useWindiCss ? [windi({})] : [])
+				],
 				// NOTE:
 				// https://github.com/sveltejs/svelte/issues/5869#issuecomment-1292212952
 				emitCss: false,	
@@ -89,7 +95,7 @@ export default [
 	// content.js script
 	makeConfig('contentScript/content.js'),
 	// options.html page
-	makeConfig('optionsPage/options.js'),
+	makeConfig('optionsPage/options.js', ),
 	// background.js script (DIDN'T REALLY NEED ROLLUP BUT OK)
 	makeConfig('backgroundScript/background.js'),
 	// popup.js bundle attached to popup.html

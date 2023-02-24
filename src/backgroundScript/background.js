@@ -1,5 +1,6 @@
 import { sortObjectArrayByKey } from "../util"
-import { test } from '../ankiConnectUtil'
+import {test} from '../ankiConnectUtil'
+
 
 // structure:
 /* {
@@ -11,19 +12,23 @@ import { test } from '../ankiConnectUtil'
     },
     flagURL: FLAGURL, 
     dict: {
-      WORD: GENDER,
+      WORD: GENDER, 
       . . .
     },
   }
 }
 */
-var IS_DEBUG = true
-var selectedLanguages = ['de']
-var languageData = {}
-var isExtensionOn = IS_DEBUG
-const EXTENSION_ALIAS = 'meemo'
 
-(async {
+(async () => {
+  var IS_DEBUG = true
+  var selectedLanguages = ['de']
+  var languageData = {}
+  var isExtensionOn = IS_DEBUG
+  const EXTENSION_ALIAS = 'meemo'
+
+  
+  test()
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({selectedLanguages})
 })
