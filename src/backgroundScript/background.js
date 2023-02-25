@@ -20,29 +20,36 @@ import {test} from '../ankiConnectUtil'
 */
 
 (async () => {
-  var IS_DEBUG = true
-  var selectedLanguages = ['de']
-  var languageData = {}
-  var isExtensionOn = IS_DEBUG
-  const EXTENSION_ALIAS = 'meemo'
+let settings = {
+  UISize: 1,
+  distanceToMouse: 8, 
+  selectedLanguages: ['de'],
 
-  
-  test()
+}
+var IS_DEBUG = true
+var selectedLanguages = ['de']
+var languageData = {}
+var isExtensionOn = IS_DEBUG
+const EXTENSION_ALIAS = 'meemo'
+
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({selectedLanguages})
+  chrome.storage.sync.set({settings})
 })
 
-// set initial word dictionary
-chrome.storage.sync.get(['selectedLanguages']).then((result) => {
-  selectedLanguages = result.selectedLanguages
-  selectedLanguages.map((language) => {
+// setup: retrieve settings and update local maps
+chrome.storage.sync.get('settings').then(result => {
+  settings = result.settings || settings
+  
+  // set initial word dictionary
+  settings.selectedLanguages.map((language) => {
     languageData[language] = {}
   })
   updateLanguageDict(languageData, selectedLanguages)
   updateLanguageGenders(languageData, selectedLanguages)
   updateLanguageFlagURLs(languageData, selectedLanguages)
   console.log(languageData)
+
 })
 
 // load word dictionary into memory

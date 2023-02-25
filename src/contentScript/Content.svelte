@@ -55,7 +55,7 @@ function readyParent() {
     pageWidth = Util.getPageWidth()
 
 
-    // load settings
+    // TODO: load settings
     chrome.runtime.sendMessage({type: 'getSettings'}, response => {
 
     })
@@ -241,7 +241,7 @@ function hoverIntoSelectionOptions() {
 <div id="hover" bind:this={hoverNode}>
     <div id="hover-content"  bind:this={hoverContentNode}>
         {#each hoverContent as entry}
-            {#if !entry.isSvelteComponent},
+            {#if entry.isSvelteComponent},
                 <svelte:component this={entry.component} class="entry"/>
             {:else}
                 <div class="entry {entry.gender}">

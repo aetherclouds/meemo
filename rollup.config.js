@@ -4,7 +4,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
-import { format } from 'path';
 
 import { windi } from 'svelte-windicss-preprocess';
 
@@ -32,10 +31,8 @@ function serve() {
 	};
 }
 
-function makeConfig(input, output, useWindiCss = false) {
-	if (!output) {
-		output = input.slice(0,input.lastIndexOf('.'))+'.bundle.js'
-	}	
+function makeConfig(input, useWindiCss = false) {
+	const output = input.slice(0,input.lastIndexOf('.'))+'.bundle.js'
 	return {
 		inlineDynamicImports: true,
 		input: `src/${input}`,
@@ -95,7 +92,7 @@ export default [
 	// content.js script
 	makeConfig('contentScript/content.js'),
 	// options.html page
-	makeConfig('optionsPage/options.js', ),
+	makeConfig('optionsPage/options.js', true),
 	// background.js script (DIDN'T REALLY NEED ROLLUP BUT OK)
 	makeConfig('backgroundScript/background.js'),
 	// popup.js bundle attached to popup.html

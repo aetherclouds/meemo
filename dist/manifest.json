@@ -1,5 +1,5 @@
 {
-    "name": "Gender Machine",
+    "name": "meemo",
     "description": "Display gender for nouns and quickly memorize them!",
     "version": "1.0",
     "manifest_version": 3,
@@ -8,12 +8,18 @@
       "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
     },
 
-    "icons": { "16": "icon.png"},
+    "icons": {
+      "48": "icon48.png",
+      "128": "icon128.png"
+    },
 
     "permissions": ["storage"],
 
     "action": {},
-    "options_page": "optionsPage/options.html",
+    "options_ui": {
+      "page": "optionsPage/options.html",
+      "open_in_tab": false
+    },
     "background": {
       "service_worker": "backgroundScript/background.bundle.js"
     },
