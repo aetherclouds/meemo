@@ -1,5 +1,6 @@
 import { sortObjectArrayByKey } from "../util"
 import {test} from '../ankiConnectUtil'
+import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IS_DEBUG } from "../const"
 
 
 // structure:
@@ -20,29 +21,19 @@ import {test} from '../ankiConnectUtil'
 */
 
 (async () => {
-let settings = {
-  UISize: 1,
-  distanceToMouse: 8, 
-  selectedLanguages: ['de'],
-
-}
-var IS_DEBUG = true
-var selectedLanguages = ['de']
 var languageData = {}
-var isExtensionOn = IS_DEBUG
-const EXTENSION_ALIAS = 'meemo'
-
+var isExtensionOn = IS_DEBUG || false
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({settings})
+  chrome.storage.sync.set({options: DEFAULT_OPTIONS})
 })
 
-// setup: retrieve settings and update local maps
-chrome.storage.sync.get('settings').then(result => {
-  settings = result.settings || settings
+// setup: retrieve options and update local maps
+chrome.storage.sync.get('options').then(result => {
+  options = result.options || DEFAULT_OPTIONS
   
   // set initial word dictionary
-  settings.selectedLanguages.map((language) => {
+  options.selectedLanguages.map((language) => {
     languageData[language] = {}
   })
   updateLanguageDict(languageData, selectedLanguages)
@@ -115,7 +106,6 @@ chrome.runtime.onMessage.addListener(
     switch (request.type) {
 
       case 'getGender':
-        console.log('getGender bitch')
         let data = []
         selectedLanguages.map(language => {
           const gender = languageData[language].dict[request.word]
