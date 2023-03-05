@@ -1,6 +1,6 @@
 {
     "name": "meemo",
-    "description": "Display gender for nouns and quickly memorize them!",
+    "description": "uhh.. TODO!!",
     "version": "1.0",
     "manifest_version": 3,
 
@@ -33,7 +33,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*.png", "modules/*"],
+        "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*", "modules/*"],
         "matches": [ "<all_urls>"]
       }
     ] 

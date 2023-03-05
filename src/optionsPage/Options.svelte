@@ -1,21 +1,116 @@
 <script>		
 	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS} from '../const'
-	let options = DEFAULT_OPTIONS
+	import { onMount } from 'svelte'
+	import {horizontalSlide} from '../svelteTransition'
+
+	const defaultOptions = DEFAULT_OPTIONS
+	let options = defaultOptions
+	let availableLanguages = AVAILABLE_LANGUAGES
+	let selectedLanguagesViz = {}
 	// load options
 	chrome.storage.sync.get('options').then(result => {
-		options = result.options || DEFAULT_OPTIONS
+			options = result.options || defaultOptions
+			options.selectedLanguages.value.map(language => selectedLanguagesViz[language] = true)
+			selectedLanguagesViz = selectedLanguagesViz
+	})
+	
+
+
+	onMount(() => {
 	})
 
-	function updateOptions(option, value) {
-		options[option].value = value
+	function udpateOptions(newOptions) {
+		if (newOptions) options = structuredClone(newOptions)
+		else options = options
+		// syncOptions()
+	}
 
+	function syncOptions(newOptions) {
+		if (newOptions) options = structuredClone(newOptions)
 		// save options object to storage
 		chrome.storage.sync.set({options})
 
 		// let update scripts know that options have changed
 		chrome.runtime.sendMessage({type: 'updateOptions'})
 	}
+
+	function cleanLanguageViz() {
+		Object.entries(selectedLanguagesViz).map((languageCode, showLanguage) => {
+			if (!showLanguage) {
+				delete selectedLanguagesViz[languageCode]
+				selectedLanguagesViz = selectedLanguagesViz
+			}
+		})
+	}
+
+	function handleAddLanguage(target) {
+		cleanLanguageViz()
+		const languageCode = target.value
+		// reset select so that it doesn't fall back to the only option available when there's only 1
+		target.value = ''
+
+		selectedLanguagesViz[languageCode] = true
+		
+		let selectedLanguages = options.selectedLanguages.value
+		if (selectedLanguages.indexOf(languageCode) === -1) {
+			selectedLanguages.push(languageCode)
+
+			// svelte will only react to (re)assignments
+			options.selectedLanguages.value = selectedLanguages
+			availableLanguages = availableLanguages
+	
+			updateOptions()
+		}
+		
+	}
+
+	function handleInput(target, optionTitle, type) {
+		let value = target.value
+		switch (type) {
+			case 'number': {
+				let parsedValue = parseFloat(value)
+				value = parsedValue ? parsedValue : 1
+			}
+		}
+		options[optionTitle].value = value
+		updateOptions()
+	}
+
+	function handleRemoveLanguage(languageCode) {
+		selectedLanguagesViz[languageCode] = false
+		
+		let selectedLanguages = options.selectedLanguages.value
+		const indexOfLanguage = selectedLanguages.indexOf(languageCode)
+		if (indexOfLanguage != -1) {
+			selectedLanguages[indexOfLanguage] = undefined
+			selectedLanguages.splice(indexOfLanguage, 1)
+
+			options.selectedLanguages.value = selectedLanguages
+			availableLanguages = availableLanguages
+	
+			updateOptions()
+		}
+	}
+
+	let bodyNode
+	function playOutlineEffect(type) {
+		const typeToColor = {
+			'save': '34d399',
+			'reset': 'f87171'
+		}
+		const selectedColor = typeToColor[type]
+		let outlineNode = document.createElement('div')
+		outlineNode.style.cssText = `--fancy-outline-color: #${selectedColor};`
+		outlineNode.classList.add('fancy-outline')
+		document.body.appendChild(outlineNode)
+		setTimeout(() => {
+			document.body.removeChild(outlineNode)
+		}, 2000)
+	}
+
 </script>
+
+<svelte:body bind:this={bodyNode} class="relative"/>
 
 <svelte:head>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,21 +120,39 @@
 
 <main class="h-full">
 	<div class="w-md mx-6 mb-6">
-		<div class="flex">
-			<h1 class="font-extrabold text-3xl my-2 px-4 text-center text-zinc-900">OPTIONS</h1>
-			<!-- <div>
-				<button on:click={() => {
-					
-				}}>save</button>
-				<button on:click={() => {
-					options=DEFAULT_OPTIONS
-				}}>reset</button>
-			</div> -->
+		<div class="flex w-full my-2 relative">
+			<h1 class="font-extrabold text-3xl px-4 text-center text-zinc-900">OPTIONS</h1>
+			<!-- cool technique i learned: make this absolute -->
+			<div class="right-6 absolute h-full py-1 flex">
+				<button 
+				alt="save"
+				class="bg-green-400 bg-opacity-50 border-zinc-900 border-[1.5px] rounded-l py-1 px-1 h-full
+				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100
+				z-2"
+				on:click={() => {
+					syncOptions()
+					playOutlineEffect('save')
+				}}>
+					<img src="../icons/save.svg" class="h-full" alt="save icon">
+				</button>
+				<button 
+				alt="reset"
+				class="bg-zinc-50 border-zinc-900 border-[1.5px] border-l-0 rounded-r py-1 px-1 h-full
+				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100 
+				z-2 hover:z-1"
+				on:click={() => {
+					options = structuredClone(DEFAULT_OPTIONS)
+					selectedLanguagesViz = {}
+					playOutlineEffect('reset')
+				}}>
+					<img src="../icons/reset.svg" class="h-full" alt="reset icon">
+				</button>
+			</div>
 		</div>
-		<div class="bg-zinc-50 border-zinc-900 border-1.5 rounded">
+		<div class="bg-zinc-50 border-zinc-900 border-[1.5px] rounded relative">
 			<!-- option entries -->
 			{#each Object.entries(options) as [optionTitle, optionDetails], i}
-			<div class="px-4 py-3 border-zinc-900 {i+1<Object.keys(options).length ? 'border-b-1.5' : ''}">
+			<div class="px-4 py-3 border-zinc-900 {i+1<Object.keys(options).length ? 'border-b-[1.5px]' : ''}">
 				<!-- top bar -->
 				<div class="w-full flex">
 					<div class="my-auto">
@@ -47,14 +160,17 @@
 						<h3 class="text-xs text-zinc-500">{optionDetails.description}</h3>
 					</div>
 					{#if optionDetails.type != 'languageSelection'}
-					<input type="number" 
-					class="appearance-none outline-none border-zinc-900 bg-transparent my-auto ml-auto min-w-8 w-0 max-w-max border-1.5 rounded 
+					<input type="number" required
+					class="appearance-none outline-none border-zinc-900 bg-transparent my-auto ml-auto min-w-8 w-0 max-w-max border-[1.5px] rounded 
 					placeholder-zinc-500 font-medium text-xl text-zinc-900 text-center py-0.5
-					ring-0 hover:ring-2 focus:ring-offset-1 focus:ring-2 ring-zinc-400 transition duration-100
-					"
+					ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 transition-input-field duration-100" 
+					style={`width: calc(${optionDetails.value.toString().length}ch + 1rem);`}
 					on:input={(e) => {
-						console.log(e)
+						console.log('change', e.target.value)
 						e.target.style.width = `calc(${e.target.value.length}ch + 1rem)`
+					}}
+					on:change={(e) => {
+						handleInput(e.target, optionTitle, 'number')
 					}}
 					value={optionDetails.value}>
 					{/if}
@@ -62,38 +178,53 @@
 				<!-- bottom bar - only needed for certain types of options -->
 				{#if (optionDetails.type == 'languageSelection')}
 				<div class="mt-3 flex">
-					<div class="border-1.5 relative max-w-full rounded border-zinc-900 p-0.5 flex font-medium text-xl cursor-pointer ring-0 hover:ring-2 ring-zinc-400 transition duration-100">
-							<div class="absolute h-full w-full left-0 top-0 flex">
-
-								<!-- TODO: hide select behind `+` symbol -->
-								 <!-- TODO: make this onselect work -->
-								<select name="yep" id="" class="absolute h-full w-full left-0 top-0 display-none transparent"
-								on:select={}
-								>
-									<option hidden disabled selected></option>
-									{#each AVAILABLE_LANGUAGES as languageCode}
-									<option value={languageCode}>{languageCode}</option>
-									{/each}
-								</select>
-								<div class="m-auto align-middle pointer-events-none z-50">
-									+
-								</div>
-							</div>
+					{#if (options.selectedLanguages.value.length < availableLanguages.length)}
+					<div class="focus-within:ring-offset-1 focus-within:ring-[1.5px] border-[1.5px] rounded border-zinc-900 relative max-w-full p-0.5 flex font-medium text-xl 
+					cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100"
+					transition:horizontalSlide={{axis: 'x', duration: 200}}
+					>
 							<!-- added these just so we get the right sizing -->
 							<img src="../data/flags/PT.svg" class="h-4.5 block mr-1 invisible"/>
 							<p class="invisible">de</p>
+							<div class="absolute h-full w-full left-0 top-0 ">
+
+								<select name="yep" id="" class="absolute h-full w-full left-0 top-0 opacity-0"
+								on:change={(e) => {
+									handleAddLanguage(e.target)
+								}}
+								>
+									<option hidden disabled selected></option>
+									{#each AVAILABLE_LANGUAGES as languageCode}
+									{#if !options.selectedLanguages.value.includes(languageCode)}
+									<option value={languageCode}>{languageCode}</option>
+									{/if}
+									{/each}
+								</select>
+								<div class="h-full w-full relative flex pointer-events-none brounded">
+									<span class="m-auto pointer-events-none">+</span>
+								</div>
+							</div>	
 					</div>
-					{#each optionDetails.value as selectedLanguage}
-					<div class="border-1.5 relative overflow-hidden max-w-full rounded border-zinc-900 p-0.5 flex font-medium text-xl text-center">
-						<img src="../data/flags/{selectedLanguage.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-1"/>
-						<p class="align-middle my-auto">{selectedLanguage.toLowerCase()}</p>
-					</div>
+					{/if}
+					{#each Object.entries(selectedLanguagesViz) as [selectedLanguage, showThisLanguage]}
+					{#if showThisLanguage}
+					<button class="border-[1.5px] relative overflow-hidden max-w-full rounded border-zinc-900 p-0.5 flex font-medium text-xl text-center ml-1 language-box 
+					cursor-pointer hover:ring-[1.5px] ring-red-400 ring-opacity-50 transition-ring duration-100"
+					on:click={() => handleRemoveLanguage(selectedLanguage)}
+					transition:horizontalSlide={{axis: 'x', duration: 200}}
+					>
+						<img src="../data/flags/{selectedLanguage.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
+						<p class="align-middle my-auto lowercase">{selectedLanguage}</p>
+					</button>
+					{/if}
 					{/each}
 					
 				</div>
 				{/if}
 			</div>
 			{/each}
+			<div class="absolute w-full h-full left-0 top-0 rounded bg-zinc-500 -z-1 translate-x-1.5 translate-y-1.5 transform-gpu"></div>
+
 		</div>
 	</div>
 </main>
@@ -101,14 +232,36 @@
 
 <style windi:preflights:global windi:safelist:global>
 	:global(body) {
-		@apply bg-zinc-100;
+		@apply bg-zinc-100 relative overflow-x-hidden;
 		font-family: 'Rubik', sans-serif;
 	}
-	.border-1\.5 {	
-		border-width: 1.5px;
+
+	:global(.fancy-outline) {
+		@apply fixed rounded-3 border-zinc-900 pointer-events-none;	
+		border-color: var(--fancy-outline-color);
+		border-radius: 10px;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		animation: 1s fancy-animation;
+		animation-fill-mode: forwards;  
 	}
-	.border-b-1\.5 {
-		border-bottom-width: 1.5px;
+
+	@keyframes fancy-animation {
+		0% {
+			border-width: 3px;
+			width: 100vw;
+			height: 100vh;
+			opacity: 100%;
+		}
+		90% {
+		}
+		100% {
+			/* border-width: 0px; */
+			width: 90vw;
+			height: 90vh;
+			opacity: 0%;
+		}
 	}
 
 	.text-xl {
@@ -135,4 +288,6 @@
 	input[type=number] {
 		-moz-appearance:textfield; /* Firefox */
 	}
+
+
 </style>
