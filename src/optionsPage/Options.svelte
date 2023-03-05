@@ -1,30 +1,17 @@
 <script>		
 	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS} from '../const'
-	import { onMount } from 'svelte'
 	import {horizontalSlide} from '../svelteTransition'
 
-	const defaultOptions = DEFAULT_OPTIONS
-	let options = defaultOptions
+	let options = DEFAULT_OPTIONS
 	let availableLanguages = AVAILABLE_LANGUAGES
 	let selectedLanguagesViz = {}
 	// load options
 	chrome.storage.sync.get('options').then(result => {
-			options = result.options || defaultOptions
+			options = result.options || DEFAULT_OPTIONS
 			options.selectedLanguages.value.map(language => selectedLanguagesViz[language] = true)
 			selectedLanguagesViz = selectedLanguagesViz
 	})
 	
-
-
-	onMount(() => {
-	})
-
-	function udpateOptions(newOptions) {
-		if (newOptions) options = structuredClone(newOptions)
-		else options = options
-		// syncOptions()
-	}
-
 	function syncOptions(newOptions) {
 		if (newOptions) options = structuredClone(newOptions)
 		// save options object to storage
@@ -34,7 +21,7 @@
 		chrome.runtime.sendMessage({type: 'updateOptions'})
 	}
 
-	function cleanLanguageViz() {
+	function cleanSelectedLanguagesViz() {
 		Object.entries(selectedLanguagesViz).map((languageCode, showLanguage) => {
 			if (!showLanguage) {
 				delete selectedLanguagesViz[languageCode]
@@ -44,7 +31,7 @@
 	}
 
 	function handleAddLanguage(target) {
-		cleanLanguageViz()
+		cleanSelectedLanguagesViz()
 		const languageCode = target.value
 		// reset select so that it doesn't fall back to the only option available when there's only 1
 		target.value = ''
@@ -110,8 +97,6 @@
 
 </script>
 
-<svelte:body bind:this={bodyNode} class="relative"/>
-
 <svelte:head>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -166,7 +151,6 @@
 					ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 transition-input-field duration-100" 
 					style={`width: calc(${optionDetails.value.toString().length}ch + 1rem);`}
 					on:input={(e) => {
-						console.log('change', e.target.value)
 						e.target.style.width = `calc(${e.target.value.length}ch + 1rem)`
 					}}
 					on:change={(e) => {
@@ -237,7 +221,8 @@
 	}
 
 	:global(.fancy-outline) {
-		@apply fixed rounded-3 border-zinc-900 pointer-events-none;	
+		position: fixed;
+		pointer-events: none;
 		border-color: var(--fancy-outline-color);
 		border-radius: 10px;
 		top: 50%;
@@ -248,15 +233,13 @@
 	}
 
 	@keyframes fancy-animation {
-		0% {
+		from {
 			border-width: 3px;
 			width: 100vw;
 			height: 100vh;
 			opacity: 100%;
 		}
-		90% {
-		}
-		100% {
+		to {
 			/* border-width: 0px; */
 			width: 90vw;
 			height: 90vh;
