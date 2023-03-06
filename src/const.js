@@ -17,7 +17,7 @@ export const DEFAULT_OPTIONS = {
     selectedLanguages: {
         description: 'The languages that the selected word will be matched against',
         type: 'languageSelection',
-        value: []
+        value: ['de']
     }
 }
 

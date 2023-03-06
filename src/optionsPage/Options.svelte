@@ -4,12 +4,10 @@
 
 	let options = DEFAULT_OPTIONS
 	let availableLanguages = AVAILABLE_LANGUAGES
-	let selectedLanguagesViz = {}
+	// this is like a 2nd 
 	// load options
 	chrome.storage.sync.get('options').then(result => {
 			options = result.options || DEFAULT_OPTIONS
-			options.selectedLanguages.value.map(language => selectedLanguagesViz[language] = true)
-			selectedLanguagesViz = selectedLanguagesViz
 	})
 	
 	function syncOptions(newOptions) {
@@ -18,26 +16,14 @@
 		chrome.storage.sync.set({options})
 
 		// let update scripts know that options have changed
-		chrome.runtime.sendMessage({type: 'updateOptions'})
-	}
-
-	function cleanSelectedLanguagesViz() {
-		Object.entries(selectedLanguagesViz).map((languageCode, showLanguage) => {
-			if (!showLanguage) {
-				delete selectedLanguagesViz[languageCode]
-				selectedLanguagesViz = selectedLanguagesViz
-			}
-		})
+		chrome.runtime.sendMessage({type: 'updateOptions', data: options})
 	}
 
 	function handleAddLanguage(target) {
-		cleanSelectedLanguagesViz()
 		const languageCode = target.value
 		// reset select so that it doesn't fall back to the only option available when there's only 1
 		target.value = ''
 
-		selectedLanguagesViz[languageCode] = true
-		
 		let selectedLanguages = options.selectedLanguages.value
 		if (selectedLanguages.indexOf(languageCode) === -1) {
 			selectedLanguages.push(languageCode)
@@ -95,6 +81,7 @@
 		}, 2000)
 	}
 
+
 </script>
 
 <svelte:head>
@@ -110,7 +97,7 @@
 			<!-- cool technique i learned: make this absolute -->
 			<div class="right-6 absolute h-full py-1 flex">
 				<button 
-				alt="save"
+				alt="save options"
 				class="bg-green-400 bg-opacity-50 border-zinc-900 border-[1.5px] rounded-l py-1 px-1 h-full
 				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100
 				z-2"
@@ -121,13 +108,13 @@
 					<img src="../icons/save.svg" class="h-full" alt="save icon">
 				</button>
 				<button 
-				alt="reset"
+				alt="reset to default options"
 				class="bg-zinc-50 border-zinc-900 border-[1.5px] border-l-0 rounded-r py-1 px-1 h-full
 				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100 
 				z-2 hover:z-1"
 				on:click={() => {
 					options = structuredClone(DEFAULT_OPTIONS)
-					selectedLanguagesViz = {}
+					cleanSelectedLanguagesViz()
 					playOutlineEffect('reset')
 				}}>
 					<img src="../icons/reset.svg" class="h-full" alt="reset icon">
@@ -190,15 +177,15 @@
 							</div>	
 					</div>
 					{/if}
-					{#each Object.entries(selectedLanguagesViz) as [selectedLanguage, showThisLanguage]}
-					{#if showThisLanguage}
+					{#each AVAILABLE_LANGUAGES as language}
+					{#if optionDetails.value.includes(language)}
 					<button class="border-[1.5px] relative overflow-hidden max-w-full rounded border-zinc-900 p-0.5 flex font-medium text-xl text-center ml-1 language-box 
 					cursor-pointer hover:ring-[1.5px] ring-red-400 ring-opacity-50 transition-ring duration-100"
-					on:click={() => handleRemoveLanguage(selectedLanguage)}
+					on:click={() => handleRemoveLanguage(language)}
 					transition:horizontalSlide={{axis: 'x', duration: 200}}
 					>
-						<img src="../data/flags/{selectedLanguage.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
-						<p class="align-middle my-auto lowercase">{selectedLanguage}</p>
+						<img src="../data/flags/{language.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
+						<p class="align-middle my-auto lowercase">{language}</p>
 					</button>
 					{/if}
 					{/each}
@@ -224,7 +211,7 @@
 		position: fixed;
 		pointer-events: none;
 		border-color: var(--fancy-outline-color);
-		border-radius: 10px;
+		border-radius: 8px;
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);

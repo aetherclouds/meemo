@@ -1,8 +1,8 @@
 <script>
-import { fade } from 'svelte/transition';
 import { onMount } from 'svelte'
 import * as Util from "../util"
 import ToolBar from './ToolBar.svelte';
+import { DEFAULT_OPTIONS } from '../const';
 
 export let rootNode;
 export let parentDocument;
@@ -20,11 +20,11 @@ let hasSelection = false
 let isMakingSelection = false
 let previousWord
 
-let settings = {
-    UISize: 1,
-    distanceToMouse: 8,
-
-}
+let options = DEFAULT_OPTIONS
+// load options
+chrome.storage.sync.get('options').then(result => {
+    options = result.options || DEFAULT_OPTIONS
+})
 
 
 let hoverContent = []
@@ -54,12 +54,6 @@ function readyParent() {
     // we'll assume this is always constant cuz it probably is + saves on performance
     pageWidth = Util.getPageWidth()
 
-
-    // TODO: load settings
-    chrome.runtime.sendMessage({type: 'getSettings'}, response => {
-
-    })
-
     // check if extension is globally enabled 
     chrome.runtime.sendMessage({type: 'isExtensionOn'}, response => {
         console.log('checking: isExtensionOn? '+response.isExtensionOn)
@@ -83,8 +77,9 @@ chrome.runtime.onMessage.addListener(
                 console.log('disableExtension')
                 disableExtension()
                 break
-            case 'updateSize':
-
+            case 'updateOptions':
+                options = request.data
+                console.log('options:', options)
             default:
                 break
         }
@@ -160,12 +155,13 @@ function handleSelectionChange(e) {
 
     hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
     // https://stackoverflow.com/a/7436602
-    hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - settings.distanceToMouse
+    hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - options.distanceToMouse
     }
 
 function handleMouseMove(e) {
     if (!hoverNode) return
     if (isMakingSelection) return
+
 
     const range = parentDocument.caretRangeFromPoint(e.clientX, e.clientY)
     if (!range) return
@@ -224,11 +220,12 @@ function handleMouseMove(e) {
 
 function updateHoverPos(e) {
     if (!isMakingSelection) {
+        console.log(options.distanceToMouse)
         // we don't want it going out of the window so we set a max horizontal distance it can go
-        hoverX = Math.min(window.innerWidth - hoverNode.offsetWidth - settings.distanceToMouse - 10, e.pageX + settings.distanceToMouse)
+        hoverX = Math.min(window.innerWidth - hoverNode.offsetWidth - options.distanceToMouse.value - 10, e.pageX + options.distanceToMouse.value)
 
         // same concept for vertical distance, we just don't want it crossing <0 (also giving it an offest of 10 so it doesn't glue to the edge)
-        hoverY = Math.max(e.pageY - hoverNode.offsetHeight - settings.distanceToMouse, 10)
+        hoverY = Math.max(e.pageY - hoverNode.offsetHeight - options.distanceToMouse.value, 10)
     }
 }
 

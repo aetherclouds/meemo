@@ -1,4 +1,4 @@
-import { sortObjectArrayByKey } from "../util"
+import { messageAllTabs, sortObjectArrayByKey } from "../util"
 import {test} from '../ankiConnectUtil'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IS_DEBUG } from "../const"
 
@@ -28,12 +28,12 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({options: DEFAULT_OPTIONS})
 })
 
-// setup: retrieve options and update local maps
-chrome.storage.sync.get('options').then(result => {
-  options = result.options || DEFAULT_OPTIONS
-  
+let options = DEFAULT_OPTIONS
+
+function initLanguages() {
+  let selectedLanguages = options.selectedLanguages.value
   // set initial word dictionary
-  options.selectedLanguages.map((language) => {
+  selectedLanguages.map((language) => {
     languageData[language] = {}
   })
   updateLanguageDict(languageData, selectedLanguages)
@@ -41,6 +41,11 @@ chrome.storage.sync.get('options').then(result => {
   updateLanguageFlagURLs(languageData, selectedLanguages)
   console.log(languageData)
 
+}
+// setup: retrieve options and update local maps
+chrome.storage.sync.get('options').then(result => {
+  options = result.data || DEFAULT_OPTIONS
+  initLanguages()
 })
 
 // load word dictionary into memory
@@ -107,19 +112,25 @@ chrome.runtime.onMessage.addListener(
 
       case 'getGender':
         let data = []
-        selectedLanguages.map(language => {
+        options.selectedLanguages.value.map(language => {
           const gender = languageData[language].dict[request.word]
           const wordForGender = languageData[language].genders[gender]
           const flagURL = languageData[language].flagURL
           if (gender) data.push({countryCode: language, gender, wordForGender, flagURL, isSvelteCode: false})
         })
         sortObjectArrayByKey(data, 'language')
-        console.log(data)
         sendResponse({data})
         break
 
       case 'isExtensionOn':
         sendResponse({isExtensionOn})
+        break
+        
+      case 'updateOptions':
+        options = request.data
+        initLanguages()
+        messageAllTabs({type: 'updateOptions', data: request.data})
+        break
 
       default:
         break
@@ -138,11 +149,8 @@ chrome.action.setBadgeBackgroundColor({
 });
 // listen to click on extension icon
 chrome.action.onClicked.addListener((tab) => {
-  console.log('toggling extension!')
   // https://stackoverflow.com/a/68896301 send message to all tabs
-  chrome.tabs.query({}, (tabs) => tabs.forEach( tab => {
-    chrome.tabs.sendMessage(tab.id, {type: isExtensionOn ? 'enableExtension' : 'disableExtension'})
-  } ) );
+  messageAllTabs({type: isExtensionOn ? 'enableExtension' : 'disableExtension'})
 
   isExtensionOn = !isExtensionOn
 
@@ -151,7 +159,7 @@ chrome.action.onClicked.addListener((tab) => {
   } else {
     chrome.action.setBadgeText({text: ''})
   }  
-  console.log(isExtensionOn)
+  console.log('toggling extension! now', isExtensionOn)
 });
 
 // create connection with anki
@@ -164,14 +172,12 @@ function genderCSVToObj(stringCSV) {
   // we already know how the header is so let's just skip it by setting i to 1
   for (let i=1; i<lines.length; i++) {
       const contents = lines[i].split(',')
-      console.log(contents)
       output[contents[0]] = {
         'm': contents[1],
         'f': contents[2],
         'n': contents[3].trim()
       }
   }
-  console.log(output)
   return output
 }
   })()

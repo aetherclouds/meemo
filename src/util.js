@@ -43,3 +43,9 @@ export function sortObjectArrayByKey(_array, key) {
     )
     return array
 }
+
+export function messageAllTabs(message) {
+  chrome.tabs.query({}, (tabs) => tabs.forEach( tab => {
+    chrome.tabs.sendMessage(tab.id, message)
+  } ) )
+}
