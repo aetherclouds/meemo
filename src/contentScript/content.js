@@ -1,6 +1,5 @@
+import { EXTENSION_ALIAS } from '../const';
 import App from './Content.svelte';
-
-const EXTENSION_ALIAS = 'genderio'
 
 const rootNode = document.createElement('div')
 rootNode.id = EXTENSION_ALIAS + '-root'

@@ -4,7 +4,7 @@ export const EXTENSION_ALIAS = 'meemo'
 
 
 export const DEFAULT_OPTIONS = {
-    UISize: {
+    UIScale: {
         description: 'Size of the hover utility',
         type: 'float',
         value: 1

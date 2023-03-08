@@ -2,7 +2,7 @@
 import { onMount } from 'svelte'
 import * as Util from "../util"
 import ToolBar from './ToolBar.svelte';
-import { DEFAULT_OPTIONS } from '../const';
+import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const';
 
 export let rootNode;
 export let parentDocument;
@@ -26,9 +26,7 @@ chrome.storage.sync.get('options').then(result => {
     options = result.options || DEFAULT_OPTIONS
 })
 
-
 let hoverContent = []
-
 
 onMount(() => {
 	// --- run on domready
@@ -39,16 +37,19 @@ onMount(() => {
     }
 })
 
+function hoverMoveLoop() {
+    // if (isExtensionOn) {
+        hoverNode.style.left = hoverX + 'px'
+        hoverNode.style.top = hoverY + 'px'
+        window.requestAnimationFrame(hoverMoveLoop)
+    // }
+}
+
 function readyParent() {
     setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
-        hoverNode.style.left = hoverX
-        hoverNode.style.top = hoverY
-        const mouseMove = () => {
-            hoverNode.style.left = hoverX + 'px'
-            hoverNode.style.top = hoverY + 'px'
-            window.requestAnimationFrame(mouseMove)
-        }
-        mouseMove()
+        hoverNode.style.left = hoverX + 'px'
+        hoverNode.style.top = hoverY + 'px'
+        hoverMoveLoop()
     }, 50)
 
     // we'll assume this is always constant cuz it probably is + saves on performance
@@ -79,6 +80,7 @@ chrome.runtime.onMessage.addListener(
                 break
             case 'updateOptions':
                 options = request.data
+                disableExtension()
                 console.log('options:', options)
             default:
                 break
@@ -100,6 +102,8 @@ function disableExtension() {
 	isExtensionOn = false
     parentDocument.removeEventListener('mousemove', handleMouseMove)
     parentDocument.removeEventListener('mouseup', handleMouseUp)
+    parentDocument.removeEventListener('selectionchange', handleSelectionChange)
+
     let existingRootNode = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
     if (existingRootNode) {
         existingRootNode.remove()
@@ -108,27 +112,66 @@ function disableExtension() {
 
 // SHOW/HIDE HOVER 
 function showHover(data) {
+    hoverContent = data
     isHoverOn = true
     hoverNode.style.opacity = 1
 }
 
 function hideHover() {
-    if (!isHoverOn) return
     if (isMakingSelection) return
-    console.log('hideHover')
     isHoverOn = false
+    hoverContent = []
     previousWord = ''
     hoverNode.style.opacity = 0
 }
 
-// EVENT HANDLERS  ------------
+function handleMouseDown(e) {
+    let selectionRange = parentDocument.getSelection().getRangeAt(0)
+}
+
 function handleMouseUp(e) {
-    console.log('mouseUp', e)
-    if (isMakingSelection) hoverIntoSelectionOptions()
-    else {
-        isMakingSelection = false
-        hideHover()
-    }
+    // flow:
+    // if there's a selection and if it contains text {
+        // if is on top of button {
+            // doStuff()
+        // } else keepHoverOn
+    // } else, hideHover()
+    // let selection = parentDocument.getSelection()
+    // console.log(selection)
+    // console.log('type: ', selection.type, '\nrangeCount: ', selection.rangeCount)
+    // console.log(selection.type === Range)
+    // console.log(selection)
+    // if (selection.type != 'None') {
+    //     let selectedText = selection.getRangeAt(0).toString().trim()
+    //     hoverContent = [{
+    //         component: ToolBar,
+    //         isSvelteComponent: true,
+    //         // TODO: make it so that props actually get passed down. they're not working atm
+    //         props: {
+    //             selectedText,
+    //         }
+    //     }]
+        
+    // } else {
+    //     // TODO: hide hover only if we're not clicking over it
+    //     if (e.toElement.id == EXTENSION_ALIAS+'-root'){}
+    //     isMakingSelection = false
+    //     hideHover()
+    // }
+    // try {
+    //     let selectionText = parentDocument.getSelection().getRangeAt(0).
+    // } catch (err) {
+    //     hideHover()
+    // } finally {
+
+    // }
+   
+    // } else {
+    //     // TODO: hide hover only if we're not clicking over it
+    //     if (e.toElement.id == EXTENSION_ALIAS+'-root'){}
+    //     isMakingSelection = false
+    //     hideHover()
+    // }
 }
 
 function handleSelectionChange(e) {    
@@ -136,27 +179,33 @@ function handleSelectionChange(e) {
     // https://stackoverflow.com/a/52157976 - this one would be cool because this listener will update on EVERY CHARACTER SELECTED instead of just mouseup. so maybe we could animate the hover with that.
 
     // https://stackoverflow.com/a/17569535 MODIFIED
-    // get selection rectangle
-    let selectionRange = parentDocument.getSelection().getRangeAt(0)
-    let selectionRect = selectionRange.getBoundingClientRect()
+    // get selection 
+    let selection = parentDocument.getSelection()
+    if (!selection.isCollapsed) {
+        let selectionRange = selection.getRangeAt(0)
+        let selectionText = selection.getRangeAt(0).toString().trim()
+        let selectionRect = selectionRange.getBoundingClientRect()
 
-    // check if there's no actual selection
-    if (selectionRange.startOffset == selectionRange.endOffset) {
-        isMakingSelection = false
-        return
-    } else {
+
         isMakingSelection = true
-        hoverContent = [{
+        showHover([{
             component: ToolBar,
-            isSvelteComponent: true
-        }]
-        showHover()
-    }
+            isSvelteComponent: true,
+            props: {
+                selectionText
+            },
+        }])
 
-    hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
-    // https://stackoverflow.com/a/7436602
-    hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - options.distanceToMouse
+        hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
+        // https://stackoverflow.com/a/7436602
+        // hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value)
+        hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((24 + options.distanceToMouse.value) * options.UIScale.value)
+    } else {
+        isMakingSelection = false
+        hideHover()
     }
+}
+
 
 function handleMouseMove(e) {
     if (!hoverNode) return
@@ -202,7 +251,6 @@ function handleMouseMove(e) {
                 previousWord = cleanedWord  
                 chrome.runtime.sendMessage({word: cleanedWord, type: 'getGender'}, function(response) {
                     if (response.data.length > 0) {
-                        hoverContent = response.data
                         console.log('data ', hoverContent)
                         showHover(response.data)
                     } else {
@@ -220,12 +268,11 @@ function handleMouseMove(e) {
 
 function updateHoverPos(e) {
     if (!isMakingSelection) {
-        console.log(options.distanceToMouse)
         // we don't want it going out of the window so we set a max horizontal distance it can go
-        hoverX = Math.min(window.innerWidth - hoverNode.offsetWidth - options.distanceToMouse.value - 10, e.pageX + options.distanceToMouse.value)
+        hoverX = Math.min(window.innerWidth - hoverNode.offsetWidth - (options.distanceToMouse.value * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
 
         // same concept for vertical distance, we just don't want it crossing <0 (also giving it an offest of 10 so it doesn't glue to the edge)
-        hoverY = Math.max(e.pageY - hoverNode.offsetHeight - options.distanceToMouse.value, 10)
+        hoverY = Math.max(e.pageY - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value), 10)
     }
 }
 
@@ -235,11 +282,13 @@ function hoverIntoSelectionOptions() {
 
 </script>
 
-<div id="hover" bind:this={hoverNode}>
+
+<div id="hover" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
+    
     <div id="hover-content"  bind:this={hoverContentNode}>
         {#each hoverContent as entry}
-            {#if entry.isSvelteComponent},
-                <svelte:component this={entry.component} class="entry"/>
+            {#if entry.isSvelteComponent}
+                <svelte:component this={entry.component} {...entry.props}/>
             {:else}
                 <div class="entry {entry.gender}">
                     <img src="{entry.flagURL}" class="flag" alt="{entry.language} flag"/>
@@ -257,11 +306,14 @@ function hoverIntoSelectionOptions() {
 }
 
 #hover {
+    user-select: none;
+
+    transform-origin: bottom left;
+    scale: var(--UIScale);
     /* all: initial; */
     z-index: 9999;
     position: absolute;
     
-    pointer-events: none;
 
     transition: top .15s, left .15s, opacity .1s ease-in-out, background 1s ease-in-out;
     transition-timing-function: cubic-bezier(.42,.29,0,1.28);
@@ -284,6 +336,8 @@ function hoverIntoSelectionOptions() {
 }
 
 .entry {
+    pointer-events: none;
+
     /* padding-top: 1px;
     padding-bottom: 1px;
     padding-left: 7px;
@@ -291,7 +345,7 @@ function hoverIntoSelectionOptions() {
     border-radius: 5px; */
     padding-top: 0.1rem;
     padding-bottom: 0.1rem;
-    padding-left: 0.4rem;
+    padding-left: 0.4rem;   
     padding-right: 0.4rem;
     
     /* vertical-align: middle;

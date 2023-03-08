@@ -9,6 +9,11 @@
 	chrome.storage.sync.get('options').then(result => {
 			options = result.options || DEFAULT_OPTIONS
 	})
+
+	function updateOptions() {
+		options = options
+
+	}
 	
 	function syncOptions(newOptions) {
 		if (newOptions) options = structuredClone(newOptions)
@@ -50,8 +55,6 @@
 	}
 
 	function handleRemoveLanguage(languageCode) {
-		selectedLanguagesViz[languageCode] = false
-		
 		let selectedLanguages = options.selectedLanguages.value
 		const indexOfLanguage = selectedLanguages.indexOf(languageCode)
 		if (indexOfLanguage != -1) {
@@ -65,7 +68,6 @@
 		}
 	}
 
-	let bodyNode
 	function playOutlineEffect(type) {
 		const typeToColor = {
 			'save': '34d399',

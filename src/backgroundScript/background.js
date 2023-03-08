@@ -116,7 +116,7 @@ chrome.runtime.onMessage.addListener(
           const gender = languageData[language].dict[request.word]
           const wordForGender = languageData[language].genders[gender]
           const flagURL = languageData[language].flagURL
-          if (gender) data.push({countryCode: language, gender, wordForGender, flagURL, isSvelteCode: false})
+          if (gender) data.push({countryCode: language, gender, wordForGender, flagURL, isSvelteComponent: false,})
         })
         sortObjectArrayByKey(data, 'language')
         sendResponse({data})
