@@ -116,7 +116,6 @@
 				z-2 hover:z-1"
 				on:click={() => {
 					options = structuredClone(DEFAULT_OPTIONS)
-					cleanSelectedLanguagesViz()
 					playOutlineEffect('reset')
 				}}>
 					<img src="../icons/reset.svg" class="h-full" alt="reset icon">

@@ -130,48 +130,6 @@ function handleMouseDown(e) {
 }
 
 function handleMouseUp(e) {
-    // flow:
-    // if there's a selection and if it contains text {
-        // if is on top of button {
-            // doStuff()
-        // } else keepHoverOn
-    // } else, hideHover()
-    // let selection = parentDocument.getSelection()
-    // console.log(selection)
-    // console.log('type: ', selection.type, '\nrangeCount: ', selection.rangeCount)
-    // console.log(selection.type === Range)
-    // console.log(selection)
-    // if (selection.type != 'None') {
-    //     let selectedText = selection.getRangeAt(0).toString().trim()
-    //     hoverContent = [{
-    //         component: ToolBar,
-    //         isSvelteComponent: true,
-    //         // TODO: make it so that props actually get passed down. they're not working atm
-    //         props: {
-    //             selectedText,
-    //         }
-    //     }]
-        
-    // } else {
-    //     // TODO: hide hover only if we're not clicking over it
-    //     if (e.toElement.id == EXTENSION_ALIAS+'-root'){}
-    //     isMakingSelection = false
-    //     hideHover()
-    // }
-    // try {
-    //     let selectionText = parentDocument.getSelection().getRangeAt(0).
-    // } catch (err) {
-    //     hideHover()
-    // } finally {
-
-    // }
-   
-    // } else {
-    //     // TODO: hide hover only if we're not clicking over it
-    //     if (e.toElement.id == EXTENSION_ALIAS+'-root'){}
-    //     isMakingSelection = false
-    //     hideHover()
-    // }
 }
 
 function handleSelectionChange(e) {    
@@ -199,6 +157,7 @@ function handleSelectionChange(e) {
         hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
         // https://stackoverflow.com/a/7436602
         // hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value)
+        // TODO: fix hover hiding atop of page if it's too high up
         hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((24 + options.distanceToMouse.value) * options.UIScale.value)
     } else {
         isMakingSelection = false
