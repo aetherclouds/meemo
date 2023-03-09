@@ -195,8 +195,9 @@
 				{/if}
 			</div>
 			{/each}
-			<div class="absolute w-full h-full left-0 top-0 rounded bg-zinc-500 -z-1 translate-x-1.5 translate-y-1.5 transform-gpu"></div>
+			<!-- TODO: credits & social media links -->
 
+			<div class="absolute w-full h-full left-0 top-0 rounded bg-zinc-500 -z-1 translate-x-1.5 translate-y-1.5 transform-gpu"></div>
 		</div>
 	</div>
 </main>

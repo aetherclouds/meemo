@@ -1,3 +1,7 @@
+<!-- TODO:
+* fix extension loading on canvases; it should only load on the parent document
+-->
+
 <script>
 import { onMount } from 'svelte'
 import * as Util from "../util"
@@ -47,8 +51,6 @@ function hoverMoveLoop() {
 
 function readyParent() {
     setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
-        hoverNode.style.left = hoverX + 'px'
-        hoverNode.style.top = hoverY + 'px'
         hoverMoveLoop()
     }, 50)
 
@@ -66,7 +68,7 @@ function readyParent() {
     
 }
 
-// ENABLE/DISABLE ESXTENSION LISTENER
+// LISTEN TO MESSAGES FROM BACKGROUND SCRIPT
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         switch (request.type) {
@@ -78,7 +80,7 @@ chrome.runtime.onMessage.addListener(
                 break
             case 'updateOptions':
                 options = request.data
-                disableExtension()
+                break
             default:
                 break
         }
@@ -117,7 +119,7 @@ function showHover(data) {
 function hideHover() {
     if (isMakingSelection) return
     isHoverOn = false
-    hoverContent = []
+    // hoverContent = []
     previousWord = ''
     hoverNode.style.opacity = 0
 }
@@ -155,8 +157,7 @@ function handleSelectionChange(e) {
         // https://stackoverflow.com/a/7436602
         // hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value)
         // TODO: fix hover hiding atop of page if it's too high up
-        // TODO: fix flickering when user begins selection
-        hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((24 + options.distanceToMouse.value) * options.UIScale.value)
+        hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((hoverNode.offsetHeight + options.distanceToMouse.value) * options.UIScale.value)
     } else {
         isMakingSelection = false
         hideHover()
@@ -224,8 +225,9 @@ function handleMouseMove(e) {
 
 function updateHoverPos(e) {
     if (!isMakingSelection) {
+        console.log(window.innerWidth, hoverNode.offsetWidth,'vs',e.pageX,options.distanceToMouse.value * options.UIScale.value)
         // we don't want it going out of the window so we set a max horizontal distance it can go
-        hoverX = Math.min(window.innerWidth - hoverNode.offsetWidth - (options.distanceToMouse.value * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
+        hoverX = Math.min(window.innerWidth - (hoverNode.offsetWidth * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
 
         // same concept for vertical distance, we just don't want it crossing <0 (also giving it an offest of 10 so it doesn't glue to the edge)
         hoverY = Math.max(e.pageY - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value), 10)
@@ -360,11 +362,3 @@ function hoverIntoSelectionOptions() {
     border-radius: 0.1rem;
 }
 </style>
-
-<!-- TODO:
-* fix the colors thing. each hover entry will have its own color but the 1st entry should work differently,
-since we'll change it when a selection happens
-* decide when to change hover's width and height: on data change, or only on selection. data change would look really nice
-but i dunno about the performance of that and how messy the code might look
-* fix extension loading on canvases; it should only load on the parent document
--->
