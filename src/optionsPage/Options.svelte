@@ -209,6 +209,7 @@
 	}
 
 	:global(.fancy-outline) {
+		z-index: 3;
 		position: fixed;
 		pointer-events: none;
 		border-color: var(--fancy-outline-color);
@@ -217,7 +218,7 @@
 		left: 50%;
 		transform: translate(-50%, -50%);
 		animation: 1s fancy-animation;
-		animation-fill-mode: forwards;  
+		animation-fill-mode: forwards;
 	}
 
 	@keyframes fancy-animation {

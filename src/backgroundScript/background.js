@@ -51,13 +51,14 @@ chrome.storage.sync.get('options').then(result => {
 // load word dictionary into memory
 function updateLanguageDict(languageData, selectedLanguages) {
   selectedLanguages.map(async (language) => {
+    // initialize map
+    languageData[language].dict = {}
+
     // for each language, read its corresponding csv file for `WORD, GENDER` entries
     const filePath = chrome.runtime.getURL('data/dicts/' + language + ".csv")
     const response = await fetch(filePath)
     if (response.ok) {
       let text = await response.text()
-      // initialize map
-      languageData[language].dict = {}
       text.split('\n').map(line => {
         const [word, gender] = line.split(',')
         if (word && gender) {
@@ -77,6 +78,7 @@ async function updateLanguageGenders(languageData, selectedLanguages) {
   const response = await fetch(filePath)
   if (response.ok) {
     let text = await response.text()
+    // returns an object with corresponding {word: gender}
     let langToGenderObj = genderCSVToObj(text)
     Object.entries(langToGenderObj).forEach(([lang, genders]) => {
       try {
@@ -108,11 +110,15 @@ function updateLanguageFlagURLs(languageData, selectedLanguages) {
 // listen to tab events
 chrome.runtime.onMessage.addListener(
   (request, sender, sendResponse) => {
-    switch (request.type) {
+    switch (request.type) { 
 
       case 'getGender':
         let data = []
+        console.log('testin')
+        console.log(options.selectedLanguages.value)
         options.selectedLanguages.value.map(language => {
+          console.log('language1', languageData)
+          console.log('language', languageData[language])
           const gender = languageData[language].dict[request.word]
           const wordForGender = languageData[language].genders[gender]
           const flagURL = languageData[language].flagURL

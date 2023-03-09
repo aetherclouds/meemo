@@ -69,19 +69,16 @@ function readyParent() {
 // ENABLE/DISABLE ESXTENSION LISTENER
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        console.log('request: ',request.type)
         switch (request.type) {
             case 'enableExtension':
                 if (!isExtensionOn) enableExtension()
                 break
             case 'disableExtension':
-                console.log('disableExtension')
                 disableExtension()
                 break
             case 'updateOptions':
                 options = request.data
                 disableExtension()
-                console.log('options:', options)
             default:
                 break
         }
@@ -158,6 +155,7 @@ function handleSelectionChange(e) {
         // https://stackoverflow.com/a/7436602
         // hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value)
         // TODO: fix hover hiding atop of page if it's too high up
+        // TODO: fix flickering when user begins selection
         hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((24 + options.distanceToMouse.value) * options.UIScale.value)
     } else {
         isMakingSelection = false
@@ -169,7 +167,6 @@ function handleSelectionChange(e) {
 function handleMouseMove(e) {
     if (!hoverNode) return
     if (isMakingSelection) return
-
 
     const range = parentDocument.caretRangeFromPoint(e.clientX, e.clientY)
     if (!range) return
@@ -208,9 +205,9 @@ function handleMouseMove(e) {
             if (cleanedWord !== previousWord) {
                 if (!cleanedWord) return
                 previousWord = cleanedWord  
-                chrome.runtime.sendMessage({word: cleanedWord, type: 'getGender'}, function(response) {
-                    if (response.data.length > 0) {
-                        console.log('data ', hoverContent)
+                chrome.runtime.sendMessage({word: cleanedWord, type: 'getGender'}, (response) => {
+                    console.log('response',response)
+                    if (response.data.length > 0) { 
                         showHover(response.data)
                     } else {
                         hideHover()
