@@ -1,15 +1,15 @@
-<!-- TODO:
-* fix extension loading on canvases; it should only load on the parent document
--->
-
 <script>
 import { onMount } from 'svelte'
 import * as Util from "../util"
-import ToolBar from './ToolBar.svelte';
-import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const';
+import ToolBar from './ToolBar.svelte'
+import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
+import Popup from './Popup.svelte'
 
-export let rootNode;
-export let parentDocument;
+console.log('app loaded!')
+
+export let rootNode
+export let shadowRootNode
+export let parentDocument
 
 let isExtensionOn = false
 let pageWidth
@@ -95,7 +95,7 @@ function enableExtension() {
     parentDocument.addEventListener('selectionchange', handleSelectionChange)
     
     parentDocument.body.appendChild(rootNode)
-}
+}   
 
 function disableExtension() {
 	isExtensionOn = false
@@ -103,9 +103,9 @@ function disableExtension() {
     parentDocument.removeEventListener('mouseup', handleMouseUp)
     parentDocument.removeEventListener('selectionchange', handleSelectionChange)
 
-    let existingRootNode = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
-    if (existingRootNode) {
-        existingRootNode.remove()
+    let existingShadowRoot = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
+    if (existingShadowRoot) {
+        existingShadowRoot.remove()
     }
 }
 
@@ -207,7 +207,7 @@ function handleMouseMove(e) {
                 if (!cleanedWord) return
                 previousWord = cleanedWord  
                 chrome.runtime.sendMessage({word: cleanedWord, type: 'getGender'}, (response) => {
-                    console.log('response',response)
+                    // console.log('response',response)
                     if (response.data.length > 0) { 
                         showHover(response.data)
                     } else {
@@ -225,10 +225,8 @@ function handleMouseMove(e) {
 
 function updateHoverPos(e) {
     if (!isMakingSelection) {
-        console.log(window.innerWidth, hoverNode.offsetWidth,'vs',e.pageX,options.distanceToMouse.value * options.UIScale.value)
         // we don't want it going out of the window so we set a max horizontal distance it can go
-        hoverX = Math.min(window.innerWidth - (hoverNode.offsetWidth * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
-
+        hoverX   = Math.min(window.innerWidth - (hoverNode.offsetWidth * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
         // same concept for vertical distance, we just don't want it crossing <0 (also giving it an offest of 10 so it doesn't glue to the edge)
         hoverY = Math.max(e.pageY - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value), 10)
     }
@@ -240,9 +238,7 @@ function hoverIntoSelectionOptions() {
 
 </script>
 
-
 <div id="hover" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
-    
     <div id="hover-content"  bind:this={hoverContentNode}>
         {#each hoverContent as entry}
             {#if entry.isSvelteComponent}
@@ -253,11 +249,9 @@ function hoverIntoSelectionOptions() {
                     {entry.wordForGender}
                 </div>
             {/if}
-        {/each}
+        {/each} 
     </div>
 </div>
-
-
 <style>
 :host {
     all: initial;
@@ -347,7 +341,7 @@ function hoverIntoSelectionOptions() {
 
 .m {
     background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(203, 92%, 54%, .5));
-}
+}   
 
 .f {
     background: linear-gradient(to right, hsla(306, 92%, 54%, .8), hsla(284, 92%, 54%, .5));

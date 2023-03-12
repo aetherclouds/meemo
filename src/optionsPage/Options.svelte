@@ -1,5 +1,6 @@
 <script>		
 	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS} from '../const'
+    import Popup from '../contentScript/Popup.svelte';
 	import {horizontalSlide} from '../svelteTransition'
 
 	let options = DEFAULT_OPTIONS
@@ -92,7 +93,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
 </svelte:head>
 
-<main class="h-full">
+<main class="h-full invisible">
 	<div class="w-md mx-6 mb-6">
 		<div class="flex w-full my-2 relative">
 			<h1 class="font-extrabold text-3xl px-4 text-center text-zinc-900">OPTIONS</h1>

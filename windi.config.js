@@ -10,5 +10,8 @@ export default defineConfig({
                 'input-field': 'width, --tw-ring-offset-shadow, --tw-ring-shadow, -webkit-box-shadow, box-shadow, --tw-ring-offset-width'
             },
         }
-    }
+    },
+    shortcuts: {
+        'popup': 'absolute top-0 left-0 text-red-400' 
+    },
 })

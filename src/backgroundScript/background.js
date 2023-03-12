@@ -96,17 +96,6 @@ function updateLanguageFlagURLs(languageData, selectedLanguages) {
   })
 }
 
-
-// TODO update variables on storage change 
-// chrome.storage.onChanged.addListener(function (changes, namespace) {
-//   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-//     console.log(
-//       `Storage key "${key}" in namespace "${namespace}" changed.`,
-//       `Old value was "${oldValue}", new value is "${newValue}".`
-//     )
-//   }
-// })
-
 // listen to tab events
 chrome.runtime.onMessage.addListener(
   (request, sender, sendResponse) => {
@@ -144,11 +133,12 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-// TODO pay attention to when this 
+// TODO: pay attention to when this (note from the future: never leave a comment unfinished, now idk what this was about)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status == 'complete') {
   }
 })
+
 
 chrome.action.setBadgeBackgroundColor({
   color: [245, 30, 30, 255]
