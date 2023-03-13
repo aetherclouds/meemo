@@ -11,7 +11,7 @@ if (window.self === window.top) {
 	// load svelte app
 	app = new App({
 		target: shadowRootNode,
-		props: {
+		props: {	
 			rootNode,
 			shadowRootNode,
 			parentDocument: document,

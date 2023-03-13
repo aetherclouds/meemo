@@ -1,7 +1,7 @@
 
 async function ankiRequest(action, params={}, version=6) {
   const data = {action, version, params}
-  return await fetch('http://127.0.0.1:8765', {
+  return fetch('http://127.0.0.1:8765', {
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
@@ -33,15 +33,15 @@ function tryActionElseWarn() {
 // - display models & decks for selection
 // 3: add note
 
-function getModelNames() {
+export function getModelNames() {
   return ankiRequest('modelNames')
 }
-function getDeckNames() {
+export function getDeckNames() {
   return ankiRequest('deckNames')
 }
 
 // TODO: create 2 cards, the 2nd of which is an inverse of the 1st, kinda like with my goethe words thing
-function addNote(modelName, deckName, frontSide, backSide) {
+export function addNote(modelName, deckName, frontSide, backSide) {
   return ankiRequest('addNote', '')
 }
 

@@ -93,6 +93,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
 </svelte:head>
 
+<Popup></Popup>
 <main class="h-full invisible">
 	<div class="w-md mx-6 mb-6">
 		<div class="flex w-full my-2 relative">

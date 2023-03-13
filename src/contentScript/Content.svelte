@@ -18,11 +18,15 @@ let hoverNode, hoverContentNode
 let isHoverOn = false
 let hoverX = 0,
     hoverY = 0,
+    cursorX = 0,
+    cursorY = 0,
     hoverWidth = 0,
     hoverHeight = 0
 let hasSelection = false
 let isMakingSelection = false
 let previousWord
+
+let showPopup = false
 
 let options = DEFAULT_OPTIONS
 // load options
@@ -103,6 +107,7 @@ function disableExtension() {
     parentDocument.removeEventListener('mouseup', handleMouseUp)
     parentDocument.removeEventListener('selectionchange', handleSelectionChange)
 
+    // TODO: make this reuse the same rootNode variable
     let existingShadowRoot = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
     if (existingShadowRoot) {
         existingShadowRoot.remove()
@@ -224,25 +229,27 @@ function handleMouseMove(e) {
 }
 
 function updateHoverPos(e) {
+    cursorX = e.pageX
+    cursorY = e.pageY
     if (!isMakingSelection) {
         // we don't want it going out of the window so we set a max horizontal distance it can go
-        hoverX   = Math.min(window.innerWidth - (hoverNode.offsetWidth * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
+        hoverX = Math.min(window.innerWidth - (hoverNode.offsetWidth * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
         // same concept for vertical distance, we just don't want it crossing <0 (also giving it an offest of 10 so it doesn't glue to the edge)
         hoverY = Math.max(e.pageY - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value), 10)
     }
 }
 
-function hoverIntoSelectionOptions() {
-
+function spawnPopup(initialX, initialY, initialW, initialH, cardInput) {
+    
 }
 
 </script>
 
 <div id="hover" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
-    <div id="hover-content"  bind:this={hoverContentNode}>
+    <div id="hover-content" bind:this={hoverContentNode}>
         {#each hoverContent as entry}
             {#if entry.isSvelteComponent}
-                <svelte:component this={entry.component} {...entry.props}/>
+                <svelte:component this={entry.component} {...entry.props, shadowRootNode}/>
             {:else}
                 <div class="entry {entry.gender}">
                     <img src="{entry.flagURL}" class="flag" alt="{entry.language} flag"/>
@@ -252,6 +259,10 @@ function hoverIntoSelectionOptions() {
         {/each} 
     </div>
 </div>
+
+{#if showPopup}
+<Popup coordinates={[cursorX, cursorY]}></Popup>
+{/if}
 <style>
 :host {
     all: initial;

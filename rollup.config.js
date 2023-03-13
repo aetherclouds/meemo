@@ -90,11 +90,9 @@ function makeConfig(input, useWindiCss = false) {
 
 export default [
 	// content.js script
-	makeConfig('contentScript/content.js'),
+	makeConfig('contentScript/content.js', true),
 	// options.html page
 	makeConfig('optionsPage/options.js', true),
 	// background.js script (DIDN'T REALLY NEED ROLLUP BUT OK)
 	makeConfig('backgroundScript/background.js'),
-	// popup.js bundle attached to popup.html
-	makeConfig('popup/popup.js'),
 ];

@@ -1,9 +1,12 @@
 <script>
     export let selectionText
+    export let shadowRootNode
+    export let spawnPopup
 </script>
 
 <div class="panel" on:click={() => {
     console.log('textProp', selectionText)
+
 }}>
     <img src={chrome.runtime.getURL(`icons/anki.png`)} alt="Save 2 Anki" class="icon">
 </div>
