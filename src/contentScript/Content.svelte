@@ -4,12 +4,13 @@ import * as Util from "../util"
 import ToolBar from './ToolBar.svelte'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
 import Popup from './Popup.svelte'
-
-console.log('app loaded!')
+import { test } from '../ankiConnectUtil'
 
 export let rootNode
 export let shadowRootNode
 export let parentDocument
+
+test()
 
 let isExtensionOn = false
 let pageWidth
@@ -26,7 +27,7 @@ let hasSelection = false
 let isMakingSelection = false
 let previousWord
 
-let showPopup = false
+let isPopupOn = false
 
 let options = DEFAULT_OPTIONS
 // load options
@@ -260,7 +261,7 @@ function spawnPopup(initialX, initialY, initialW, initialH, cardInput) {
     </div>
 </div>
 
-{#if showPopup}
+{#if isPopupOn}
 <Popup coordinates={[cursorX, cursorY]}></Popup>
 {/if}
 <style>

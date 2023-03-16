@@ -1,3 +1,16 @@
+export class AnkiConnectionError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "AnkiConnectionError";
+  }
+}
+
+export class AnkiResponseError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "AnkiResponseError";
+  }
+}
 
 async function ankiRequest(action, params={}, version=6) {
   const data = {action, version, params}
@@ -7,15 +20,22 @@ async function ankiRequest(action, params={}, version=6) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data)
-  }).then(response => { 
-    if (!response.ok) {
-      throw new Error("AnkiConnect response returned not OK")
+  }).then(async promisedResponse => { 
+    if (!promisedResponse.ok) {
+      throw AnkiResponseError()
     } else {
-      return response
+      const response = await promisedResponse.json()
+      if (response.result === null) {
+        throw new AnkiResponseError(response.error)
+      }
+      return response.result
     }
   }
   ).catch(err => {
-    console.error('Error sending a request to AnkiConnect:', err)
+    // console.error('Error sending a request to AnkiConnect:', err)
+    if (!(err instanceof AnkiResponseError)) {
+      throw new AnkiConnectionError(err.response)
+    }
   })
 }
 
@@ -33,11 +53,15 @@ function tryActionElseWarn() {
 // - display models & decks for selection
 // 3: add note
 
-export function getModelNames() {
+export async function getModelNames() {
   return ankiRequest('modelNames')
 }
-export function getDeckNames() {
+export async function getDeckNames() {
   return ankiRequest('deckNames')
+}
+
+export async function getModelFieldNames(modelName) {
+  return ankiRequest('modelFieldNames', {'modelName': modelName})
 }
 
 // TODO: create 2 cards, the 2nd of which is an inverse of the 1st, kinda like with my goethe words thing
@@ -45,9 +69,8 @@ export function addNote(modelName, deckName, frontSide, backSide) {
   return ankiRequest('addNote', '')
 }
 
-// FIXME: this gives the error Module format iife does not support top-level await. Use the "es" or "system" output formats rather.
 export async function test() {
-  const response = await ankiRequest('createDeck', 6, {deck: 'test1'}).then(
-    console.log(response => console.log(response.body))
-  )
+  const response = await ankiRequest('modelNames',)
+  console.log(await getDeckNames())
+    console.log(response)
 }

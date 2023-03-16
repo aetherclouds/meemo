@@ -1,5 +1,4 @@
 import { messageAllTabs, sortObjectArrayByKey } from "../util"
-import {test} from '../ankiConnectUtil'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IS_DEBUG } from "../const"
 
 
@@ -103,11 +102,7 @@ chrome.runtime.onMessage.addListener(
 
       case 'getGender':
         let data = []
-        console.log('testin')
-        console.log(options.selectedLanguages.value)
         options.selectedLanguages.value.map(language => {
-          console.log('language1', languageData)
-          console.log('language', languageData[language])
           const gender = languageData[language].dict[request.word]
           const wordForGender = languageData[language].genders[gender]
           const flagURL = languageData[language].flagURL
