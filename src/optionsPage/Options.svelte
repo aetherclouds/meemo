@@ -1,7 +1,7 @@
 <script>		
 	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS} from '../const'
     import Popup from '../contentScript/Popup.svelte';
-	import {horizontalSlide} from '../svelteTransition'
+	import {horizontalSlideDisconsiderBorder} from '../svelteTransition'
 
 	let options = DEFAULT_OPTIONS
 	let availableLanguages = AVAILABLE_LANGUAGES
@@ -155,7 +155,7 @@
 					{#if (options.selectedLanguages.value.length < availableLanguages.length)}
 					<div class="focus-within:ring-offset-1 focus-within:ring-[1.5px] border-[1.5px] rounded border-zinc-900 relative max-w-full p-0.5 flex font-medium text-xl 
 					cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100"
-					transition:horizontalSlide={{axis: 'x', duration: 200}}
+					transition:horizontalSlideDisconsiderBorder={{axis: 'x', duration: 200}}
 					>
 							<!-- added these just so we get the right sizing -->
 							<img src="../data/flags/PT.svg" class="h-4.5 block mr-1 invisible"/>
@@ -185,7 +185,7 @@
 					<button class="border-[1.5px] relative overflow-hidden max-w-full rounded border-zinc-900 p-0.5 flex font-medium text-xl text-center ml-1 language-box 
 					cursor-pointer hover:ring-[1.5px] ring-red-400 ring-opacity-50 transition-ring duration-100"
 					on:click={() => handleRemoveLanguage(language)}
-					transition:horizontalSlide={{axis: 'x', duration: 200}}
+					transition:horizontalSlideDisconsiderBorder={{axis: 'x', duration: 200}}
 					>
 						<img src="../data/flags/{language.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
 						<p class="align-middle my-auto lowercase">{language}</p>
