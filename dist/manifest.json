@@ -4,10 +4,6 @@
     "version": "1.0",
     "manifest_version": 3,
 
-    "content_security_policy": {
-      "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
-    },
-
     "icons": {
       "48": "icon48.png",
       "128": "icon128.png"

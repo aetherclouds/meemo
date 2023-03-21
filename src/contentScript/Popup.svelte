@@ -6,11 +6,15 @@
 <script>
     import { onMount, prevent_default } from "svelte/internal";
     import { slide } from "svelte/transition";
-    import {AnkiConnectionError, AnkiResponseError, getDeckNames, getModelFieldNames, getModelNames} from '../ankiConnectUtil'
-    import { horizontalSlide } from "../svelteTransition";
+    import {addNote, AnkiConnectionError, AnkiResponseError, getDeckNames, getModelFieldNames, getModelNames} from '../ankiConnectUtil'
+    import { horizontalSlide, horizontalSlideDisconsiderBorder } from "../svelteTransition";
 
     export let parentDocument = document
-    export let contentToSave = 'asd'
+    export let parentNode
+    export let contentToSave
+
+    export let initialX = 0
+    export let initialY = 0
     let popupNode
     let isPopupBeingDragged = false
 
@@ -19,74 +23,109 @@
     
     let cardDecks = []
     let cardModels = []
-    let cardModelFields = {}
-    let cardModelFieldsShouldSave = {
-        'test': {
-
-        }
-    }
+    let cardModelFieldsData = {}
     // TODO: upon save, sync field content
     // TODO: also, doh, restore it
     // TODO: make field show "Will save field." so that ppl know it
-    let fieldSavedData = {}
-    let errorType = ''
-    let timeUntilRetry = 5
+    let messageType = ''
 
-    async function tryAnkiConnectionLoop() {
+    async function tryAnkiConnectionLoop(isFirstTime = true) {
         try {
             const newCardDecks = await getDeckNames()
             const newCardModels = await getModelNames()
-            if (newCardDecks) console.log('yep')
             if (!(newCardDecks && newCardModels)) {
                 throw new AnkiResponseError()
             } else {
                 cardDecks = newCardDecks
                 cardModels = newCardModels
-                errorType = ''
+                messageType = ''
 
                 if (cardModels.length > 1) {
                     updateModelFields(cardModels[0])
                 }
-            }
-        } catch (err) {
-            console.error(err)
-            switch (err.constructor) {
-                // TODO: fill these
-                case AnkiConnectionError:
-                    errorType = 'connection'
-                    break
-                case AnkiResponseError:
-                    errorType = 'response'
-                    break
-                default:
-                    errorType = 'unknown'
-                    break
-            }
 
-            timeUntilRetry = 5
-            let countdown = setInterval(() => {
-                timeUntilRetry-= 1
-                if (timeUntilRetry == 0) {
-                    tryAnkiConnectionLoop()
-                    clearInterval(countdown)
+                if (!isFirstTime) {
+                    messageType = 'success'
+                  setTimeout(() => {messageType = ''}, 5000)
                 }
-            }, 1000)
+          }
+        } catch (err) {
+            handleAnkiConnError(err, () => tryAnkiConnectionLoop(false))
+            
         }
     }
 
-    onMount(tryAnkiConnectionLoop)
+    onMount(() => {
+        popupNode.style.left = initialX + 'px'
+        popupNode.style.top = initialY + 'px'
+        tryAnkiConnectionLoop()
+    })
 
-    function handleSubmit(e) {
-        // TODO: create card from data
+    function handleAnkiConnError(error, callback) {
+        console.error(error)
+            switch (error.constructor) {
+                // TODO: fill these
+                case AnkiConnectionError:
+                    messageType = 'connection'
+                    break
+                case AnkiResponseError:
+                    messageType = 'response'
+                    break
+                default:
+                    messageType = 'unknown'
+                    break
+            }
+
+            let secsUntilRetry = 5
+            let countdown = setInterval(() => {
+                secsUntilRetry-= 1
+                if (secsUntilRetry == 0) {
+                    if (callback) callback()
+                    clearInterval(countdown)
+                }
+            }, 1000)
+    }
+
+    async function handleSubmit(e) {
         const formData = new FormData(e.target)
+        const fieldsData = Object.keys(cardModelFieldsData).reduce((obj, fieldName) => (
+            obj[fieldName]=cardModelFieldsData[fieldName].value.replaceAll('$replace$', contentToSave),
+            obj
+            ), {})
+        try {
+            const callbackResult = await addNote(formData.get('deckName'), formData.get('modelName'), fieldsData)
+        } catch (err) {
+            handleAnkiConnError(err)
+        }
+        console.log('result', callbackResult)
+        // sync selections
+        syncDeckAndModelChoices(formData.get('deckName'), formData.get('modelName'))
+        syncFields(fieldsData)
+    }
 
+    function syncDeckAndModelChoices(deckName, modelName) {
+        chrome.storage.sync.set({selectedDeck: deckName, selectedModel: modelName})
+    }
+    function syncFields(fieldsData) {
+        /* 
+        I suppose there's no documentation, but for Array.reduce(), if you return 2 items then 1st value should be the "accumulation function",
+        and the 2nd should be the accumulation itself. so for an object, an assignment and the object itself.
+        if you only return 1 object, it should be the accumulation. quirky, huh?
+        */
+        Object.keys(fieldsData).reduce((obj, fieldName) => {
+            if (fieldsData[fieldName].shouldSave) {
+                return (obj[fieldName],obj)
+            } else {
+                return obj
+            }
+        }, {})
+        chrome.storage.sync.set({savedFields: fieldsData})
     }
 
     let initialDragOffsetX, 
         initialDragOffsetY
     function handleDragMouseDown(e) {
         const popupRect = popupNode.getBoundingClientRect()
-        console.log(popupRect.left, popupRect.top, 'yipee')
         initialDragOffsetX = - e.pageX + popupRect.left
         initialDragOffsetY = - e.pageY + popupRect.top 
         document.addEventListener('mousemove', handleDragMouseMove)
@@ -110,42 +149,40 @@
 
     async function onModelSelectChange(e) {
         updateModelFields(e.target.value)
-        console.log('a',cardModelFields)
     }
 
     async function updateModelFields(modelName) {
         const fields = await getModelFieldNames(modelName)
         // TODO: get saved fields from sync
-        const savedFields = getSyncModelFieldsValues(modelName)
+        // const savedFields = getSyncModelFieldsValues(modelName)
         // cardModelFields = fields.reduce((obj, field) => {
         //     savedField = savedFields[field]
-        //     return (obj[field]={value: savedField || '', save: savedFields ? true : false},obj)
+        //     return (obj[field]={value: savedField || '', shouldSave: savedFields ? true : false},obj)
         // }, {})
         // TODO: THIS IS A TEMPORARY REPLACEMENT
-        cardModelFields = fields.reduce((obj, field) => (obj[field]={value: '', save: false},obj), {})
+        cardModelFieldsData = fields.reduce((obj, fieldName) => (obj[fieldName]={value: '', shouldSave: false},obj), {})
 
     }
 
     const replacementString = '$replace$'
-    function onFieldInput(e) {
+    function handleFieldInput(e) {
         const content = e.target.innerText
         const idxOfReplaceable = content.indexOf(replacementString)
         let newContent
         if (idxOfReplaceable != -1) {
             newContent = content.replaceAll('$replace$', '<span class="replaceable">$replace$</span>') 
-            cardModelFieldsShouldSave[e.target.dataset.fieldName] = true
+        
+            cardModelFieldsData[e.target.dataset.fieldname].shouldSave = true
         } else {
             newContent = content
-            cardModelFieldsShouldSave[e.target.dataset.fieldName] = false
+            cardModelFieldsData[e.target.dataset.fieldname].shouldSave = false
         }
-        console.log('yeah mf', e)
-        console.log('yeah mf2', e.target)
         e.target.previousElementSibling.innerHTML = newContent
     }
 </script>
 
 <div class="absolute" bind:this={popupNode}>
-    <div class="bg-zinc-800 min-w-[20rem] w-[20rem] max-w-[20rem] rounded-[0.3rem] blur-bg">
+    <div class="bg-zinc-800 w-[20rem] max-w-[20rem] rounded-[0.3rem] blur-bg">
         <div draggable class="w-full h-min py-1.5 rounded-[0.3rem] border-zinc-600 box-border flex cursor-move
         hover:bg-zinc-500-trs transition-colors duration-100
         " on:mousedown={handleDragMouseDown} on:mouseup={handleDragMouseUp}>
@@ -160,33 +197,44 @@
                 <div class="bg-zinc-500 rounded-full aspect-square w-[0.16rem] h-[0.16rem]"></div>
             </div>
         </div>
-        <div class="p-5 flex flex-col max-h-xs h-xs overflow-auto">
+        <div class="p-5 flex flex-col max-h-xs overflow-auto">
             <h1 class="text-blue-gradient font-bold text-xl mx-auto mb-5">
                 Add2Anki
             </h1>
             <!-- TODO: warning dialog -->
-            {#if errorType}
-            <div class="rounded-[0.3rem] border border-red-400 text-zinc-300 px-2 py-1 mb-3 transition flex flex-col h-max text-xs hyphens-auto"
-                transition:horizontalSlide={{axis: 'y'}}
+            {#if messageType}
+            <div class="rounded-[0.3rem] border {messageType == 'success' ? 'border-green-400' : 'border-red-400'} text-zinc-300 px-2 py-1 mb-3 transition flex flex-col h-max text-xs hyphens-auto"
+                transition:horizontalSlideDisconsiderBorder={{axis: 'y', duration: 500}}
             >
                 <div>
-                {#if errorType == 'connection'}
+                {#if messageType == 'connection'}
                     There has been a connection error. Make sure that Anki is open, and that <a class="text-blue-400 underline" href="https://ankiweb.net/shared/info/2055492159" target="_blank">AnkiConnect</a> is installed & running.
-                {:else if errorType == 'response'}
+                {:else if messageType == 'response'}
                     There has been a response error. AnkiConnect is responding but is not working properly.
-                {:else}
+                {:else if messageType == 'unknown'}
                     There has been an uknown error. ¯\_(ツ)_/¯
+                {:else if messageType == 'success'}
+                    Successfully reconnected with Anki!
                 {/if}
                 </div>
-                <div class="block mx-auto text-xs">retrying in {timeUntilRetry} second(s) . . .</div>
+                {#if messageType != 'success'}
+                <div class="block  text-[0.5rem] text-zinc-400 my-1">retrying in {timeUntilRetry} second(s) . . .</div>
+                {/if}
             </div>
             {/if}
-            <form action="" class="text-zinc-300" on:submit|preventDefault={handleSubmit}>
+            {#if contentToSave}
+            <div class="text-xs text-zinc-400 mb-3 flex mx-auto">
+                <span class="replaceable">$replace$</span>
+                &nbsp;&rarr;&nbsp;
+                <span class="text-zinc-300">{contentToSave}</span>
+            </div>
+            {/if}
+            <form action="" class="text-zinc-300" on:submit|preventDefault={handleSubmit} id="leForm">
                 <div class="w-full grid grid-cols-2 mb-3">
                     <div class="pr-2">
-                        <label for="deck" class="block mb-0.5 label-on-focus">Card Deck</label>
+                        <label for="deckName" class="block mb-0.5 label-on-focus">Card Deck</label>
                         <div class="relative">
-                            <select name="deck" id="deck" class="w-full rounded-[0.3rem] bg-zinc-500-trs border border-zinc-600 truncate outline-none focus:border-blue-400"
+                            <select name="deckName" id="deckName" class="w-full rounded-[0.3rem] bg-zinc-500-trs border border-zinc-600 truncate outline-none focus:border-blue-400"
                             bind:this={deckNameSelect}
                             >
                                 {#each cardDecks as deckName}
@@ -197,9 +245,9 @@
                         </div>
                     </div>
                     <div class="pl-2">
-                        <label for="model" class="block mb-0.5">Card Model</label>  
+                        <label for="modelName" class="block mb-0.5">Card Model</label>  
                         <div class="relative">
-                            <select name="model" id="model" class="w-full rounded-[0.3rem] bg-zinc-500-trs border border-zinc-600 truncate outline-none focus:border-blue-400"
+                            <select name="modelName" id="modelName" class="w-full rounded-[0.3rem] bg-zinc-500-trs border border-zinc-600 truncate outline-none focus:border-blue-400"
                             on:change={onModelSelectChange}
                             bind:this={cardModelSelect}
                             >
@@ -213,12 +261,15 @@
                 </div>
                 
     
-                {#each Object.entries(cardModelFields) as [fieldTitle, fieldDetails]}
+                {#each Object.entries(cardModelFieldsData) as [fieldTitle, fieldDetails]}
                 <!-- TODO: show "will save" small text -->
-                    <label for={fieldTitle} class="block mb-0.5">{fieldTitle}</label>
+                    <div class="flex align-middle mb-0.5 items-center">
+                        <label for={fieldTitle} class="mr-2">{fieldTitle}</label>
+                        <small class="text-[0.6rem] text-zinc-400">{#if fieldDetails.shouldSave}This field will stay saved{/if}</small>
+                    </div>
                     <div class="relative w-full rounded bg-zinc-500-trs mb-3" data-fieldName={fieldTitle} id={fieldTitle}>
-                        <div class="absolute size-inherit top-0 left-0 pointer-events-none overflow-clip px-1 border border-transparent"></div>
-                        <div contenteditable="true" on:input={onFieldInput} class="webkit-text-transparent px-1 border border-zinc-600 rounded-[0.3rem] appearance-none outline-none  focus:border-blue-400 transition-colors"></div>
+                        <div class="absolute size-inherit top-0 left-0 pointer-events-none overflow-clip px-1 border border-transparent hyphens-auto break-words"></div>
+                        <div contenteditable="true" bind:innerHTML={cardModelFieldsData[fieldTitle].value} on:input={handleFieldInput} data-fieldName={fieldTitle} class="break-words relative top-0 left-0 webkit-text-transparent px-1 border border-zinc-600 rounded-[0.3rem] appearance-none outline-none hyphens-auto focus:border-blue-400 transition-colors"></div>
                     </div>
                 {/each}
                 <div class="opacity-0 block mb-0.5">yep</div>

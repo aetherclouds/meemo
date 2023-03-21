@@ -1,11 +1,23 @@
 <script>
-    export let selectionText
-    export let shadowRootNode
-    export let spawnPopup
+    import { getContext } from "svelte";
+
+
+    export let ankiProps
+    export let popupProps
+    export let parentNode = getContext('parentNode')
+
+    function spawnPopup(ankiProps) {
+
+        popupProps = {initialX: hoverX, initialY: hoverY, parentDocument, contentToSave}
+        isPopupOn = true
+    }
+
+    function handleClickAnki() {
+        spawnPopup()
+    }
 </script>
 
 <div class="panel" on:click={() => {
-    console.log('textProp', selectionText)
 
 }}>
     <img src={chrome.runtime.getURL(`icons/anki.png`)} alt="Save 2 Anki" class="icon">

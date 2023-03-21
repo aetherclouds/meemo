@@ -1,107 +1,32 @@
-# This repo is no longer maintained. Consider using `npm init vite` and selecting the `svelte` option or — if you want a full-fledged app framework and don't mind using pre-1.0 software — use [SvelteKit](https://kit.svelte.dev), the official application framework for Svelte.
+# meemo
+## What is this?
+Meemo is an extension aimed especially at language learners, and especially those who use Anki. 
+From now on, you have a helpful little companion who'll be right next to your cursor and tell you the gender of the word you happen to be hovering upon. This is especially useful for the more romantic languages such as Portuguese and German that have gendered nouns. 
+You can also quickly save pieces of text straight into Anki by selecting a certain area (TODO: or at the press of a key combination) and clicking the self-explanatory Anki icon that pops up. You then have a menu wherein you can select the deck and card model and fill it away. Any field with `$replace$` will get replaced with the selected text. The fields you used this tag in will also get placed back in
 
----
+## Why is this?
+When I was learning German, I realized I'd spent too much time simply throwing words I didn't know the gender of, into a convenient online tool that would give you the gender for whatever you typed in (forgot the name and link, but I'll be sure to add it whenever we cross paths again), or into Google Translate, prepended with "The". So... I decided to create this! 
+Though honestly, it was mostly fueled by the desire to learn a few lessons about browser extensions and augmenting Anki.
 
-# svelte app
+## Compatibility
+This was not designed with super backward compatibility in mind. In other words, it probably won't work on your Pentium 4's Internet Explorer 6.0. Firefox compatibility is a to-do (because of manifest V3 still making its entry).
 
-This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
+## Lessons I have learned
+If I could start from scratch, 
+- Would've definitely used TypeScript (or ReScript).
+- Would've stuck to TailwindCSS. Sorry WindiCSS, but despite being harder to set-up, Tailwind had some features you don't, and when I needed them, things yawed slightly south.
+- Would've researched better ways of debugging extensions.
+- Would've separated the floating hover thing from the main content script. When I thought about the Save2Anki popup, I had already architected the whole project with the hover component as its cornerstone. While it was certainly important, as I had more floating components on the screen, I quickly realized I should've stramlined and refactored the adding of floating components.
 
-To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
+I will make sure to apply these to my next projects. It was an enjoyable adventure!
 
-```bash
-npx degit sveltejs/template svelte-app
-cd svelte-app
-```
+## Things to mention
+Initially, I planned to save notes straight into Anki's database. I then devotely sought to implement it using [sqlite.js](https://sql.js.org/#/) and some browser-compatible distribution (to which I forgot the link) of it from the depths of [GitHub](https://www.youtube.com/watch?v=dQw4w9WgXcQ). My dreams were shattered when I read that Anki themselves do not recommend modification by 3rd parties through anything other than AnkiConnect. Not to undermine how convenient AnkiConnect is, but it's a bummer that you have to open Anki to use it, as I feel that kind of takes the point away.
 
-*Note that you will need to have [Node.js](https://nodejs.org) installed.*
-
-
-## Get started
-
-Install the dependencies...
-
-```bash
-cd svelte-app
-npm install
-```
-
-...then start [Rollup](https://rollupjs.org):
-
-```bash
-npm run dev
-```
-
-Navigate to [localhost:8080](http://localhost:8080). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
-
-By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
-
-If you're using [Visual Studio Code](https://code.visualstudio.com/) we recommend installing the official extension [Svelte for VS Code](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode). If you are using other editors you may need to install a plugin in order to get syntax highlighting and intellisense.
-
-## Building and running in production mode
-
-To create an optimised version of the app:
-
-```bash
-npm run build
-```
-
-You can run the newly built app with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in your package.json's `dependencies` so that the app will work when you deploy to platforms like [Heroku](https://heroku.com).
-
-
-## Single-page app mode
-
-By default, sirv will only respond to requests that match files in `public`. This is to maximise compatibility with static fileservers, allowing you to deploy your app anywhere.
-
-If you're building a single-page app (SPA) with multiple routes, sirv needs to be able to respond to requests for *any* path. You can make it so by editing the `"start"` command in package.json:
-
-```js
-"start": "sirv public --single"
-```
-
-## Using TypeScript
-
-This template comes with a script to set up a TypeScript development environment, you can run it immediately after cloning the template with:
-
-```bash
-node scripts/setupTypeScript.js
-```
-
-Or remove the script via:
-
-```bash
-rm scripts/setupTypeScript.js
-```
-
-If you want to use `baseUrl` or `path` aliases within your `tsconfig`, you need to set up `@rollup/plugin-alias` to tell Rollup to resolve the aliases. For more info, see [this StackOverflow question](https://stackoverflow.com/questions/63427935/setup-tsconfig-path-in-svelte).
-
-## Deploying to the web
-
-### With [Vercel](https://vercel.com)
-
-Install `vercel` if you haven't already:
-
-```bash
-npm install -g vercel
-```
-
-Then, from within your project folder:
-
-```bash
-cd public
-vercel deploy --name my-project
-```
-
-### With [surge](https://surge.sh/)
-
-Install `surge` if you haven't already:
-
-```bash
-npm install -g surge
-```
-
-Then, from within your project folder:
-
-```bash
-npm run build
-surge public my-project.surge.sh
-```
+## TODO: Credits
+- Country flag SVGS: (to fill (yup, I forgot to write it down))
+- Gender nouns data:
+    - DE:
+    - PT-BR:
+- Dungas for our pomodoro sessions and feedback
+- & sincerely, thank you for having interest in my project! ..Or at least, in its description!

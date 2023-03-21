@@ -1,5 +1,5 @@
 <script>
-import { onMount } from 'svelte'
+import { onMount, setContext } from 'svelte'
 import * as Util from "../util"
 import ToolBar from './ToolBar.svelte'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
@@ -28,6 +28,7 @@ let isMakingSelection = false
 let previousWord
 
 let isPopupOn = false
+let popupProps = {}
 
 let options = DEFAULT_OPTIONS
 // load options
@@ -55,6 +56,7 @@ function hoverMoveLoop() {
 }
 
 function readyParent() {
+    setContext('parentNode', hoverNode.parentNode)
     setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
         hoverMoveLoop()
     }, 50)
@@ -96,7 +98,6 @@ chrome.runtime.onMessage.addListener(
 function enableExtension() {	
 	isExtensionOn = true
     parentDocument.addEventListener('mousemove', handleMouseMove)
-    parentDocument.addEventListener('mouseup', handleMouseUp)
     parentDocument.addEventListener('selectionchange', handleSelectionChange)
     
     parentDocument.body.appendChild(rootNode)
@@ -105,7 +106,6 @@ function enableExtension() {
 function disableExtension() {
 	isExtensionOn = false
     parentDocument.removeEventListener('mousemove', handleMouseMove)
-    parentDocument.removeEventListener('mouseup', handleMouseUp)
     parentDocument.removeEventListener('selectionchange', handleSelectionChange)
 
     // TODO: make this reuse the same rootNode variable
@@ -130,13 +130,6 @@ function hideHover() {
     hoverNode.style.opacity = 0
 }
 
-function handleMouseDown(e) {
-    let selectionRange = parentDocument.getSelection().getRangeAt(0)
-}
-
-function handleMouseUp(e) {
-}
-
 function handleSelectionChange(e) {    
     // https://stackoverflow.com/a/5379408
     // https://stackoverflow.com/a/52157976 - this one would be cool because this listener will update on EVERY CHARACTER SELECTED instead of just mouseup. so maybe we could animate the hover with that.
@@ -149,21 +142,23 @@ function handleSelectionChange(e) {
         let selectionText = selection.getRangeAt(0).toString().trim()
         let selectionRect = selectionRange.getBoundingClientRect()
 
-
         isMakingSelection = true
-        showHover([{
-            component: ToolBar,
-            isSvelteComponent: true,
-            props: {
-                selectionText
-            },
-        }])
 
         hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
         // https://stackoverflow.com/a/7436602
         // hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value)
         // TODO: fix hover hiding atop of page if it's too high up
         hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((hoverNode.offsetHeight + options.distanceToMouse.value) * options.UIScale.value)
+        
+        showHover([{
+            component: ToolBar,
+            isSvelteComponent: true,
+            props: {
+                ankiProps: {selectionText, hoverX, hoverY},
+                popupProps
+            },
+        }])
+
     } else {
         isMakingSelection = false
         hideHover()
@@ -240,10 +235,6 @@ function updateHoverPos(e) {
     }
 }
 
-function spawnPopup(initialX, initialY, initialW, initialH, cardInput) {
-    
-}
-
 </script>
 
 <div id="hover" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
@@ -262,8 +253,9 @@ function spawnPopup(initialX, initialY, initialW, initialH, cardInput) {
 </div>
 
 {#if isPopupOn}
-<Popup coordinates={[cursorX, cursorY]}></Popup>
+<Popup {...popupProps}></Popup>
 {/if}
+
 <style>
 :host {
     all: initial;

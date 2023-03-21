@@ -14,6 +14,7 @@ export class AnkiResponseError extends Error {
 
 async function ankiRequest(action, params={}, version=6) {
   const data = {action, version, params}
+  console.log('data', data)
   return fetch('http://127.0.0.1:8765', {
     method: "POST",
     headers: {
@@ -25,6 +26,7 @@ async function ankiRequest(action, params={}, version=6) {
       throw AnkiResponseError()
     } else {
       const response = await promisedResponse.json()
+      console.log('unprocessed response:',response)
       if (response.result === null) {
         throw new AnkiResponseError(response.error)
       }
@@ -35,6 +37,8 @@ async function ankiRequest(action, params={}, version=6) {
     // console.error('Error sending a request to AnkiConnect:', err)
     if (!(err instanceof AnkiResponseError)) {
       throw new AnkiConnectionError(err.response)
+    } else {
+      throw err
     }
   })
 }
@@ -64,9 +68,18 @@ export async function getModelFieldNames(modelName) {
   return ankiRequest('modelFieldNames', {'modelName': modelName})
 }
 
-// TODO: create 2 cards, the 2nd of which is an inverse of the 1st, kinda like with my goethe words thing
-export function addNote(modelName, deckName, frontSide, backSide) {
-  return ankiRequest('addNote', '')
+export async function addNote(deckName, modelName, fields) {
+  return ankiRequest('addNote', {
+    'note': {
+      'deckName': deckName,
+      'modelName': modelName,
+      'fields': fields,
+      'tags': ['fromMeemo!'],
+      "options": {
+        "allowDuplicate": true,
+    },
+    }
+  })
 }
 
 export async function test() {
