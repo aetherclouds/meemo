@@ -4,13 +4,10 @@ import * as Util from "../util"
 import ToolBar from './ToolBar.svelte'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
 import Popup from './Popup.svelte'
-import { test } from '../ankiConnectUtil'
 
 export let rootNode
 export let shadowRootNode
 export let parentDocument
-
-test()
 
 let isExtensionOn = false
 let pageWidth
@@ -26,8 +23,10 @@ let hoverX = 0,
 let hasSelection = false
 let isMakingSelection = false
 let previousWord
+let staticHoverNode
 
 let isPopupOn = false
+// TODO: see how to change this variable (check if reverse flow prop assignment works, otherwise use getContext and setContext)
 let popupProps = {}
 
 let options = DEFAULT_OPTIONS
@@ -39,6 +38,8 @@ chrome.storage.sync.get('options').then(result => {
 let hoverContent = []
 
 onMount(() => {
+    // FIXME: outputs "Error: Function called outside component initialization"
+    setContext('staticHoverNode', staticHoverNode)
 	// --- run on domready
     if (parentDocument.readyState === 'complete') {
         readyParent()
@@ -56,7 +57,6 @@ function hoverMoveLoop() {
 }
 
 function readyParent() {
-    setContext('parentNode', hoverNode.parentNode)
     setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
         hoverMoveLoop()
     }, 50)
@@ -72,6 +72,11 @@ function readyParent() {
             enableExtension() 
         }
     })
+
+
+}
+
+export function createHover(component, componentProps) {
     
 }
 
@@ -108,7 +113,6 @@ function disableExtension() {
     parentDocument.removeEventListener('mousemove', handleMouseMove)
     parentDocument.removeEventListener('selectionchange', handleSelectionChange)
 
-    // TODO: make this reuse the same rootNode variable
     let existingShadowRoot = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
     if (existingShadowRoot) {
         existingShadowRoot.remove()
@@ -155,7 +159,6 @@ function handleSelectionChange(e) {
             isSvelteComponent: true,
             props: {
                 ankiProps: {selectionText, hoverX, hoverY},
-                popupProps
             },
         }])
 
@@ -251,10 +254,12 @@ function updateHoverPos(e) {
         {/each} 
     </div>
 </div>
+<div bind:this={staticHoverNode} id="static-hover">
+</div>
 
-{#if isPopupOn}
-<Popup {...popupProps}></Popup>
-{/if}
+<!-- {#if isPopupOn}
+<Popup bind:popupProps={popupProps}></Popup>
+{/if} -->
 
 <style>
 :host {

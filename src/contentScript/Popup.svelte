@@ -9,6 +9,7 @@
     import {addNote, AnkiConnectionError, AnkiResponseError, getDeckNames, getModelFieldNames, getModelNames} from '../ankiConnectUtil'
     import { horizontalSlide, horizontalSlideDisconsiderBorder } from "../svelteTransition";
 
+    export let popupProps
     export let parentDocument = document
     export let parentNode
     export let contentToSave
@@ -28,6 +29,13 @@
     // TODO: also, doh, restore it
     // TODO: make field show "Will save field." so that ppl know it
     let messageType = ''
+    
+    onMount(() => {
+        console.log('popupOnmount')
+        popupNode.style.left = initialX + 'px'
+        popupNode.style.top = initialY + 'px'
+        tryAnkiConnectionLoop()
+    })
 
     async function tryAnkiConnectionLoop(isFirstTime = true) {
         try {
@@ -55,35 +63,34 @@
         }
     }
 
-    onMount(() => {
-        popupNode.style.left = initialX + 'px'
-        popupNode.style.top = initialY + 'px'
-        tryAnkiConnectionLoop()
-    })
-
+    let secsUntilRetry = 0
     function handleAnkiConnError(error, callback) {
         console.error(error)
-            switch (error.constructor) {
-                // TODO: fill these
-                case AnkiConnectionError:
-                    messageType = 'connection'
-                    break
-                case AnkiResponseError:
-                    messageType = 'response'
-                    break
-                default:
-                    messageType = 'unknown'
-                    break
-            }
+        console.log('doing message stuffz')
+        switch (error.constructor) {
+            // TODO: fill these
+            case AnkiConnectionError:
+            messageType = 'connection'
+            break
+        case AnkiResponseError:
+            messageType = 'response'
+            break
+        default:
+            messageType = 'unknown'
+            break
+        }
 
-            let secsUntilRetry = 5
+        if (callback) {
+            secsUntilRetry = 5
             let countdown = setInterval(() => {
                 secsUntilRetry-= 1
                 if (secsUntilRetry == 0) {
-                    if (callback) callback()
+                    callback()
                     clearInterval(countdown)
                 }
             }, 1000)
+        }
+
     }
 
     async function handleSubmit(e) {
@@ -203,7 +210,7 @@
             </h1>
             <!-- TODO: warning dialog -->
             {#if messageType}
-            <div class="rounded-[0.3rem] border {messageType == 'success' ? 'border-green-400' : 'border-red-400'} text-zinc-300 px-2 py-1 mb-3 transition flex flex-col h-max text-xs hyphens-auto"
+            <div class="rounded-[0.3rem] border {messageType == 'success' ? 'border-green-400' : 'border-red-400'} text-zinc-300 px-2 py-1 mb-3 flex flex-col h-max text-xs hyphens-auto" style="transition: border-color 500ms, height 500ms;"
                 transition:horizontalSlideDisconsiderBorder={{axis: 'y', duration: 500}}
             >
                 <div>
@@ -218,7 +225,7 @@
                 {/if}
                 </div>
                 {#if messageType != 'success'}
-                <div class="block  text-[0.5rem] text-zinc-400 my-1">retrying in {timeUntilRetry} second(s) . . .</div>
+                <div class="block  text-[0.5rem] text-zinc-400 my-1">retrying in {secsUntilRetry} second(s) . . .</div>
                 {/if}
             </div>
             {/if}
@@ -268,11 +275,11 @@
                         <small class="text-[0.6rem] text-zinc-400">{#if fieldDetails.shouldSave}This field will stay saved{/if}</small>
                     </div>
                     <div class="relative w-full rounded bg-zinc-500-trs mb-3" data-fieldName={fieldTitle} id={fieldTitle}>
-                        <div class="absolute size-inherit top-0 left-0 pointer-events-none overflow-clip px-1 border border-transparent hyphens-auto break-words"></div>
-                        <div contenteditable="true" bind:innerHTML={cardModelFieldsData[fieldTitle].value} on:input={handleFieldInput} data-fieldName={fieldTitle} class="break-words relative top-0 left-0 webkit-text-transparent px-1 border border-zinc-600 rounded-[0.3rem] appearance-none outline-none hyphens-auto focus:border-blue-400 transition-colors"></div>
+                        <div class="absolute size-inherit top-0 left-0 pointer-events-none overflow-clip px-1 border border-transparent hyphens-auto"></div>
+                        <div contenteditable="true" bind:innerHTML={cardModelFieldsData[fieldTitle].value} on:input={handleFieldInput} data-fieldName={fieldTitle} class="break-all relative top-0 left-0 webkit-text-transparent px-1 border border-zinc-600 rounded-[0.3rem] appearance-none outline-none focus:border-blue-400 transition-colors"></div>
                     </div>
                 {/each}
-                <div class="opacity-0 block mb-0.5">yep</div>
+                <div class="opacity-0 block mb-0.5">&nbsp;</div>
                 <button type="submit" class="w-full rounded-[0.3rem] bg-zinc-500-trs border border-zinc-600 text-sm py-1 appearance-none outline-none hover:border-blue-400 focus:border-blue-400 transition-colors">Add that thing!</button>        
             </form>
         </div>
