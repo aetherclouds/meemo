@@ -4,13 +4,10 @@ import * as Util from "../util"
 import ToolBar from './ToolBar.svelte'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
 import Popup from './Popup.svelte'
-import { test } from '../ankiConnectUtil'
 
 export let rootNode
 export let shadowRootNode
 export let parentDocument
-
-test()
 
 let isExtensionOn = false
 let pageWidth
@@ -26,8 +23,10 @@ let hoverX = 0,
 let hasSelection = false
 let isMakingSelection = false
 let previousWord
+let staticHoverNode
 
 let isPopupOn = false
+// TODO: see how to change this variable (check if reverse flow prop assignment works, otherwise use getContext and setContext)
 let popupProps = {}
 
 let options = DEFAULT_OPTIONS
@@ -56,14 +55,6 @@ function hoverAnimateLoop() {
 }
 
 function readyParent() {
-<<<<<<< HEAD
-=======
-    setContext('parentNode', hoverNode.parentNode)
-    setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
-        hoverMoveLoop()
-    }, 50)
-
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
     // we'll assume this is always constant cuz it probably is + saves on performance
     pageWidth = Util.getPageWidth()
 
@@ -75,14 +66,10 @@ function readyParent() {
             enableExtension() 
         }
     })
-<<<<<<< HEAD
 
     setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
         hoverAnimateLoop()
     }, 50)
-=======
-    
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
 }
 
 // LISTEN TO MESSAGES FROM BACKGROUND SCRIPT
@@ -118,7 +105,6 @@ function disableExtension() {
     parentDocument.removeEventListener('mousemove', handleMouseMove)
     parentDocument.removeEventListener('selectionchange', handleSelectionChange)
 
-    // TODO: make this reuse the same rootNode variable
     let existingShadowRoot = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
     if (existingShadowRoot) {
         existingShadowRoot.remove()
@@ -163,7 +149,6 @@ function handleSelectionChange(e) {
         console.log('rect', selectionRect)
         showHover([{
             isSvelteComponent: true,
-<<<<<<< HEAD
             component: ToolBar,
             props: {    
                 staticHoverNode, 
@@ -171,11 +156,6 @@ function handleSelectionChange(e) {
                 clientY: selectionRect.top, 
                 parentDocument, 
                 selectionText
-=======
-            props: {
-                ankiProps: {selectionText, hoverX, hoverY},
-                popupProps
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
             },
         }])
 
@@ -259,42 +239,31 @@ function updateHoverCoordinates(e) {
 
 </script>
 
-<div id="hover" class="select-none absolute truncate text-white rounded" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
-    <div id="hover-content" class="" bind:this={hoverContentNode}>
+<div id="hover" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
+    <div id="hover-content" bind:this={hoverContentNode}>
         {#each hoverContent as entry}
             {#if entry.isSvelteComponent}
                 <svelte:component this={entry.component} {...entry.props}/>
             {:else}
-                <div class="{entry.gender}-entry flex pointer-events-none px-1 w-full">
-                    <div>
-                        <img src="{entry.flagURL}" class="block" alt="{entry.countryCode} flag"/>
-                    </div>
-                    <div>{entry.wordForGender}</div>
+                <div class="entry   {entry.gender}-entry">
+                    <img src="{entry.flagURL}" class="flag block" alt="{entry.language} flag"/>
+                    {entry.wordForGender}
                 </div>
             {/if}
         {/each} 
     </div>
 </div>
-<<<<<<< HEAD
-<div bind:this={staticHoverNode} id="static-hover" class="absolute">
+<div bind:this={staticHoverNode} id="static-hover">
 </div>
 
-<style windi:preflights windi:safelist:global global>
-.m-entry {
-=======
-
-{#if isPopupOn}
-<Popup {...popupProps}></Popup>
-{/if}
+<!-- {#if isPopupOn}
+<Popup bind:popupProps={popupProps}></Popup>
+{/if} -->
 
 <style>
-:host {
-    all: initial;
-}
-
 #hover {
     user-select: none;
-
+    
     transform-origin: bottom left;
     scale: var(--UIScale);
     /* all: initial; */
@@ -343,48 +312,29 @@ function updateHoverCoordinates(e) {
     transition: background 1s ease-in-out;
 }
 
-.rainbow {
-    /* background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(306, 92%, 54%, .8), hsla(137, 92%, 54%, .8),); */
-    background: linear-gradient(to right,
-    hsl(223deg 92% 54%) 0%,
-    hsl(254deg 91% 65%) 9%,
-    hsl(277deg 87% 61%) 18%,
-    hsl(296deg 80% 56%) 27%,
-    hsl(316deg 100% 50%) 36%,
-    hsl(1deg 100% 64%) 45%,
-    hsl(42deg 100% 49%) 55%,
-    hsl(90deg 84% 49%) 64%,
-    hsl(162deg 100% 45%) 73%,
-    hsl(193deg 100% 50%) 82%,
-    hsl(203deg 100% 50%) 91%,
-    hsl(223deg 92% 54%) 100%
-    );
-    background-size: 400%;
-	animation: gradient 15s ease infinite;
-}
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
-.m {
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
+.m-entry {
     background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(203, 92%, 54%, .5));
 }   
 
 .f-entry {
-    background: linear-gradient(to right, hsla(300, 7%, 8%, 0.8), hsla(284, 92%, 54%, .5));
+    background: linear-gradient(to right, hsla(306, 92%, 54%, .8), hsla(284, 92%, 54%, .5));
 }
 
 .n-entry {
     background: linear-gradient(to right, hsla(137, 92%, 54%, .8), hsla(117, 92%, 54%, .5));
 }
+
+.flag {
+    margin-right: 0.25rem;
+    border-radius: 0.3rem;
+}
+
+#static-hover {
+    position: absolute;
+}
+
+:global(#static-hover *) {
+    z-index: 1000;
+    /* position: fixed; */
+}
 </style>
-    

@@ -29,7 +29,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*"],
+        "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*", "modules/*"],
         "matches": [ "<all_urls>"]
       }
     ] 

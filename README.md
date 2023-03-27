@@ -2,7 +2,7 @@
 ## What is this?
 Meemo is an extension aimed especially at language learners, and especially those who use Anki. 
 From now on, you have a helpful little companion who'll be right next to your cursor and tell you the gender of the word you happen to be hovering upon. This is especially useful for the more romantic languages such as Portuguese and German that have gendered nouns. 
-You can also quickly save pieces of text straight into Anki by selecting a certain area (TODO: or at the press of a key combination) and clicking the self-explanatory Anki icon that pops up. You then have a menu wherein you can select the deck and card model and fill it away. The tag `$replace$` will get replaced with the selected text. The fields you used this tag in will also stay saved, so that you can make your own templates.
+You can also quickly save pieces of text straight into Anki by selecting a certain area (TODO: or at the press of a key combination) and clicking the self-explanatory Anki icon that pops up. You then have a menu wherein you can select the deck and card model and fill it away. Any field with `$replace$` will get replaced with the selected text. The fields you used this tag in will also get placed back in
 
 ## Why is this?
 When I was learning German, I realized I'd spent too much time simply throwing words I didn't know the gender of, into a convenient online tool that would give you the gender for whatever you typed in (forgot the name and link, but I'll be sure to add it whenever we cross paths again), or into Google Translate, prepended with "The". So... I decided to create this! 
@@ -13,10 +13,10 @@ This was not designed with super backward compatibility in mind. In other words,
 
 ## Lessons I have learned
 If I could start from scratch, 
-- Would've definitely used TypeScript (or ReScript). Big, or just decently-sized, projects in JS can become a nightmare in the tracking of data flows.
+- Would've definitely used TypeScript (or ReScript).
 - Would've stuck to TailwindCSS. Sorry WindiCSS, but despite being harder to set-up, Tailwind had some features you don't, and when I needed them, things yawed slightly south.
 - Would've researched better ways of debugging extensions.
-- Would've separated the floating hover thing from the main content script, from the start. When I thought about the Save2Anki popup, I had already architected the whole project with the hover component as its cornerstone. While it was certainly important, as I had more floating components on the screen, I quickly realized I should've stramlined and refactored the adding of floating components, because there would be more than just one.
+- Would've separated the floating hover thing from the main content script. When I thought about the Save2Anki popup, I had already architected the whole project with the hover component as its cornerstone. While it was certainly important, as I had more floating components on the screen, I quickly realized I should've stramlined and refactored the adding of floating components.
 
 I will make sure to apply these to my next projects. It was an enjoyable adventure!
 
