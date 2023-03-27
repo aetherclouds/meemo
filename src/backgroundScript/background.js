@@ -1,5 +1,6 @@
 import { messageAllTabs, sortObjectArrayByKey } from "../util"
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IS_DEBUG } from "../const"
+import { ankiRequest } from "../ankiConnectUtil"
 
 
 // structure:
@@ -38,7 +39,7 @@ function initLanguages() {
   updateLanguageDict(languageData, selectedLanguages)
   updateLanguageGenders(languageData, selectedLanguages)
   updateLanguageFlagURLs(languageData, selectedLanguages)
-  console.log(languageData)
+  // console.log(languageData)
 
 }
 // setup: retrieve options and update local maps
@@ -120,6 +121,13 @@ chrome.runtime.onMessage.addListener(
         options = request.data
         initLanguages()
         messageAllTabs({type: 'updateOptions', data: request.data})
+        break
+
+      case 'runAnkiRequest':
+        ankiRequest(request.data.action, request.data.params).then(response => {
+          sendResponse({response})
+        })
+        return true
         break
 
       default:

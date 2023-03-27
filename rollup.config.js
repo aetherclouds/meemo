@@ -45,7 +45,7 @@ function makeConfig(input, useWindiCss = false) {
 		plugins: [
 			svelte({
 				preprocess: [
-					...(useWindiCss ? [windi({})] : [])
+					// ...(useWindiCss ? [windi({})] : [])
 				],
 				// NOTE:
 				// https://github.com/sveltejs/svelte/issues/5869#issuecomment-1292212952
@@ -90,6 +90,7 @@ function makeConfig(input, useWindiCss = false) {
 
 export default [
 	// content.js script
+	// FIXME: fucking hell adapt windicss for collision with content and toolbar
 	makeConfig('contentScript/content.js', true),
 	// options.html page
 	makeConfig('optionsPage/options.js', true),

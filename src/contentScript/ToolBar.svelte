@@ -1,15 +1,25 @@
 <script>
-    import { getContext } from "svelte";
+    import Popup from "./Popup.svelte";
 
 
-    export let ankiProps
-    export let popupProps
-    export let parentNode = getContext('parentNode')
+    export let staticHoverNode
+    export let clientX
+    export let clientY
+    export let parentDocument
+    export let selectionText
+    let popup
 
     function spawnPopup(ankiProps) {
-
-        popupProps = {initialX: hoverX, initialY: hoverY, parentDocument, contentToSave}
-        isPopupOn = true
+        popup = new Popup({
+            target: staticHoverNode,
+            props: {
+                parentDocument,
+                staticHoverNode,
+                initialX: clientX,
+                initialY: clientY,
+                contentToSave: selectionText,
+            }
+        })
     }
 
     function handleClickAnki() {
@@ -17,14 +27,12 @@
     }
 </script>
 
-<div class="panel" on:click={() => {
-
-}}>
+<div class="panel" on:click={handleClickAnki}>
     <img src={chrome.runtime.getURL(`icons/anki.png`)} alt="Save 2 Anki" class="icon">
 </div>
 <style>
 .icon {
-    height: 1.5rem;
+    height: 16px;
     /* https://stackoverflow.com/a/37596806 */
     display: block;
 }

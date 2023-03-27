@@ -1,3 +1,7 @@
+<!-- 
+	TODO: absolute/fixed toggle for popup
+	TODO: on/off on start toggle
+ -->
 <script>		
 	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS} from '../const'
     import Popup from '../contentScript/Popup.svelte';

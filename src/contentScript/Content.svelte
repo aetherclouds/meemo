@@ -1,5 +1,5 @@
 <script>
-import { onMount, setContext } from 'svelte'
+import { getContext, onMount, setContext } from 'svelte'
 import * as Util from "../util"
 import ToolBar from './ToolBar.svelte'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
@@ -38,8 +38,6 @@ chrome.storage.sync.get('options').then(result => {
 let hoverContent = []
 
 onMount(() => {
-    // FIXME: outputs "Error: Function called outside component initialization"
-    setContext('staticHoverNode', staticHoverNode)
 	// --- run on domready
     if (parentDocument.readyState === 'complete') {
         readyParent()
@@ -48,36 +46,30 @@ onMount(() => {
     }
 })
 
-function hoverMoveLoop() {
+function hoverAnimateLoop() {
     // if (isExtensionOn) {
         hoverNode.style.left = hoverX + 'px'
         hoverNode.style.top = hoverY + 'px'
-        window.requestAnimationFrame(hoverMoveLoop)
+        window.requestAnimationFrame(hoverAnimateLoop)
     // }
 }
 
 function readyParent() {
-    setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
-        hoverMoveLoop()
-    }, 50)
-
     // we'll assume this is always constant cuz it probably is + saves on performance
     pageWidth = Util.getPageWidth()
 
     // check if extension is globally enabled 
     chrome.runtime.sendMessage({type: 'isExtensionOn'}, response => {
-        console.log('checking: isExtensionOn? '+response.isExtensionOn)
+        console.log('checking: isExtensionOn?',response.isExtensionOn)
         // check if isExtensionOn is already on so we don't run this function twice
         if (response.isExtensionOn && !isExtensionOn) {
             enableExtension() 
         }
     })
 
-
-}
-
-export function createHover(component, componentProps) {
-    
+    setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
+        hoverAnimateLoop()
+    }, 50)
 }
 
 // LISTEN TO MESSAGES FROM BACKGROUND SCRIPT
@@ -147,20 +139,27 @@ function handleSelectionChange(e) {
         let selectionRect = selectionRange.getBoundingClientRect()
 
         isMakingSelection = true
-
+    
         hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
         // https://stackoverflow.com/a/7436602
         // hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value)
         // TODO: fix hover hiding atop of page if it's too high up
         hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((hoverNode.offsetHeight + options.distanceToMouse.value) * options.UIScale.value)
-        
+
+        console.log('rect', selectionRect)
         showHover([{
-            component: ToolBar,
             isSvelteComponent: true,
-            props: {
-                ankiProps: {selectionText, hoverX, hoverY},
+            component: ToolBar,
+            props: {    
+                staticHoverNode, 
+                clientX: selectionRect.left, 
+                clientY: selectionRect.top, 
+                parentDocument, 
+                selectionText
             },
         }])
+
+        console.log('trying', hoverContent)
 
     } else {
         isMakingSelection = false
@@ -170,6 +169,9 @@ function handleSelectionChange(e) {
 
 
 function handleMouseMove(e) {
+    cursorX = e.pageX
+    cursorY = e.pageY
+
     if (!hoverNode) return
     if (isMakingSelection) return
 
@@ -223,13 +225,10 @@ function handleMouseMove(e) {
     }
 
     // update render
-    updateHoverPos(e)
-
+    updateHoverCoordinates(e)
 }
 
-function updateHoverPos(e) {
-    cursorX = e.pageX
-    cursorY = e.pageY
+function updateHoverCoordinates(e) {
     if (!isMakingSelection) {
         // we don't want it going out of the window so we set a max horizontal distance it can go
         hoverX = Math.min(window.innerWidth - (hoverNode.offsetWidth * options.UIScale.value) - 10, e.pageX + (options.distanceToMouse.value * options.UIScale.value))
@@ -240,128 +239,36 @@ function updateHoverPos(e) {
 
 </script>
 
-<div id="hover" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
-    <div id="hover-content" bind:this={hoverContentNode}>
+<div id="hover" class="select-none absolute truncate text-white rounded" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
+    <div id="hover-content" class="" bind:this={hoverContentNode}>
         {#each hoverContent as entry}
             {#if entry.isSvelteComponent}
-                <svelte:component this={entry.component} {...entry.props, shadowRootNode}/>
+                <svelte:component this={entry.component} {...entry.props}/>
             {:else}
-                <div class="entry {entry.gender}">
-                    <img src="{entry.flagURL}" class="flag" alt="{entry.language} flag"/>
-                    {entry.wordForGender}
+                <div class="{entry.gender}-entry flex pointer-events-none px-1 w-full">
+                    <div>
+                        <img src="{entry.flagURL}" class="block" alt="{entry.countryCode} flag"/>
+                    </div>
+                    <div>{entry.wordForGender}</div>
                 </div>
             {/if}
         {/each} 
     </div>
 </div>
-<div bind:this={staticHoverNode} id="static-hover">
+<div bind:this={staticHoverNode} id="static-hover" class="absolute">
 </div>
 
-<!-- {#if isPopupOn}
-<Popup bind:popupProps={popupProps}></Popup>
-{/if} -->
-
-<style>
-:host {
-    all: initial;
-}
-
-#hover {
-    user-select: none;
-
-    transform-origin: bottom left;
-    scale: var(--UIScale);
-    /* all: initial; */
-    z-index: 9999;
-    position: absolute;
-    
-
-    transition: top .15s, left .15s, opacity .1s ease-in-out, background 1s ease-in-out;
-    transition-timing-function: cubic-bezier(.42,.29,0,1.28);
-
-    overflow: hidden;
-    overflow-wrap: break-word;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.9);
-    border-radius: 0.3rem;
-
-}
-
-#hover-content {
-    /* position: absolute; */
-    bottom: 0;
-}
-
-.entry {
-    pointer-events: none;
-
-    /* padding-top: 1px;
-    padding-bottom: 1px;
-    padding-left: 7px;
-    padding-right: 7px;
-    border-radius: 5px; */
-    padding-top: 0.1rem;
-    padding-bottom: 0.1rem;
-    padding-left: 0.4rem;   
-    padding-right: 0.4rem;
-    
-    /* vertical-align: middle;
-    align-items: center; */
-
-    -webkit-backdrop-filter: blur(3px); 
-    backdrop-filter: blur(3px);
-    transition: background 1s ease-in-out;
-}
-
-.rainbow {
-    /* background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(306, 92%, 54%, .8), hsla(137, 92%, 54%, .8),); */
-    background: linear-gradient(to right,
-    hsl(223deg 92% 54%) 0%,
-    hsl(254deg 91% 65%) 9%,
-    hsl(277deg 87% 61%) 18%,
-    hsl(296deg 80% 56%) 27%,
-    hsl(316deg 100% 50%) 36%,
-    hsl(1deg 100% 64%) 45%,
-    hsl(42deg 100% 49%) 55%,
-    hsl(90deg 84% 49%) 64%,
-    hsl(162deg 100% 45%) 73%,
-    hsl(193deg 100% 50%) 82%,
-    hsl(203deg 100% 50%) 91%,
-    hsl(223deg 92% 54%) 100%
-    );
-    background-size: 400%;
-	animation: gradient 15s ease infinite;
-}
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
-.m {
+<style windi:preflights windi:safelist:global global>
+.m-entry {
     background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(203, 92%, 54%, .5));
 }   
 
-.f {
-    background: linear-gradient(to right, hsla(306, 92%, 54%, .8), hsla(284, 92%, 54%, .5));
+.f-entry {
+    background: linear-gradient(to right, hsla(300, 7%, 8%, 0.8), hsla(284, 92%, 54%, .5));
 }
 
-.n {
+.n-entry {
     background: linear-gradient(to right, hsla(137, 92%, 54%, .8), hsla(117, 92%, 54%, .5));
 }
-
-.flag {
-    margin-right: 0.25rem;
-    border-radius: 0.1rem;
-}
 </style>
+    

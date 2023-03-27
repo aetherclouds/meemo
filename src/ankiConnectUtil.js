@@ -12,9 +12,26 @@ export class AnkiResponseError extends Error {
   }
 }
 
-async function ankiRequest(action, params={}, version=6) {
+export async function ankiRequestThroughBg(action, params={}) {
+  const response = (await chrome.runtime.sendMessage({type: 'runAnkiRequest', data: {action, params}})).response
+  console.log('receiving response:', response)
+  if (response.error) {
+    console.error(response.error)
+    switch (response.error) {
+      case 'AnkiConnectionError':
+        throw new AnkiConnectionError()
+      case 'AnkiResponseError':
+        throw new AnkiResponseError()
+      default:
+        throw new Error(response.error.name)
+    }
+  } else {
+    return response.response
+  }
+}
+
+export async function ankiRequest(action, params={}, version=6) {
   const data = {action, version, params}
-  console.log('data', data)
   return fetch('http://127.0.0.1:8765', {
     method: "POST",
     headers: {
@@ -26,29 +43,19 @@ async function ankiRequest(action, params={}, version=6) {
       throw AnkiResponseError()
     } else {
       const response = await promisedResponse.json()
-      console.log('unprocessed response:',response)
+      // console.log('unprocessed response:',response)
       if (response.result === null) {
         throw new AnkiResponseError(response.error)
       }
-      return response.result
+      return {response: response.result, error: null}
     }
   }
   ).catch(err => {
-    // console.error('Error sending a request to AnkiConnect:', err)
     if (!(err instanceof AnkiResponseError)) {
-      throw new AnkiConnectionError(err.response)
-    } else {
-      throw err
+      err = new AnkiConnectionError(err.response)
     }
+    return {response: null, error: err.name}
   })
-}
-
-const times_to_attempt = 5
-const attempt_cooldown = 1000
-function tryActionElseWarn() {
-  for (var i=0; i<times_to_attempt; i++) {
-    
-  }
 }
 
 // here's what we gotta do:
@@ -58,18 +65,18 @@ function tryActionElseWarn() {
 // 3: add note
 
 export async function getModelNames() {
-  return ankiRequest('modelNames')
+  return ankiRequestThroughBg('modelNames')
 }
 export async function getDeckNames() {
-  return ankiRequest('deckNames')
+  return ankiRequestThroughBg('deckNames')
 }
 
 export async function getModelFieldNames(modelName) {
-  return ankiRequest('modelFieldNames', {'modelName': modelName})
+  return ankiRequestThroughBg('modelFieldNames', {'modelName': modelName})
 }
 
 export async function addNote(deckName, modelName, fields) {
-  return ankiRequest('addNote', {
+  return ankiRequestThroughBg('addNote', {
     'note': {
       'deckName': deckName,
       'modelName': modelName,
@@ -83,7 +90,7 @@ export async function addNote(deckName, modelName, fields) {
 }
 
 export async function test() {
-  const response = await ankiRequest('modelNames',)
+  const response = await ankiRequestThroughBg('modelNames',)
   console.log(await getDeckNames())
     console.log(response)
 }
