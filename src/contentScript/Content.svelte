@@ -4,13 +4,10 @@ import * as Util from "../util"
 import ToolBar from './ToolBar.svelte'
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
 import Popup from './Popup.svelte'
-import { test } from '../ankiConnectUtil'
 
 export let rootNode
 export let shadowRootNode
 export let parentDocument
-
-test()
 
 let isExtensionOn = false
 let pageWidth
@@ -26,8 +23,10 @@ let hoverX = 0,
 let hasSelection = false
 let isMakingSelection = false
 let previousWord
+let staticHoverNode
 
 let isPopupOn = false
+// TODO: see how to change this variable (check if reverse flow prop assignment works, otherwise use getContext and setContext)
 let popupProps = {}
 
 let options = DEFAULT_OPTIONS
@@ -56,14 +55,6 @@ function hoverAnimateLoop() {
 }
 
 function readyParent() {
-<<<<<<< HEAD
-=======
-    setContext('parentNode', hoverNode.parentNode)
-    setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
-        hoverMoveLoop()
-    }, 50)
-
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
     // we'll assume this is always constant cuz it probably is + saves on performance
     pageWidth = Util.getPageWidth()
 
@@ -75,14 +66,10 @@ function readyParent() {
             enableExtension() 
         }
     })
-<<<<<<< HEAD
 
     setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
         hoverAnimateLoop()
     }, 50)
-=======
-    
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
 }
 
 // LISTEN TO MESSAGES FROM BACKGROUND SCRIPT
@@ -118,7 +105,6 @@ function disableExtension() {
     parentDocument.removeEventListener('mousemove', handleMouseMove)
     parentDocument.removeEventListener('selectionchange', handleSelectionChange)
 
-    // TODO: make this reuse the same rootNode variable
     let existingShadowRoot = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
     if (existingShadowRoot) {
         existingShadowRoot.remove()
@@ -163,7 +149,6 @@ function handleSelectionChange(e) {
         console.log('rect', selectionRect)
         showHover([{
             isSvelteComponent: true,
-<<<<<<< HEAD
             component: ToolBar,
             props: {    
                 staticHoverNode, 
@@ -171,11 +156,6 @@ function handleSelectionChange(e) {
                 clientY: selectionRect.top, 
                 parentDocument, 
                 selectionText
-=======
-            props: {
-                ankiProps: {selectionText, hoverX, hoverY},
-                popupProps
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
             },
         }])
 
@@ -275,107 +255,11 @@ function updateHoverCoordinates(e) {
         {/each} 
     </div>
 </div>
-<<<<<<< HEAD
 <div bind:this={staticHoverNode} id="static-hover" class="absolute">
 </div>
 
 <style windi:preflights windi:safelist:global global>
 .m-entry {
-=======
-
-{#if isPopupOn}
-<Popup {...popupProps}></Popup>
-{/if}
-
-<style>
-:host {
-    all: initial;
-}
-
-#hover {
-    user-select: none;
-
-    transform-origin: bottom left;
-    scale: var(--UIScale);
-    /* all: initial; */
-    z-index: 9999;
-    position: absolute;
-    
-
-    transition: top .15s, left .15s, opacity .1s ease-in-out, background 1s ease-in-out;
-    transition-timing-function: cubic-bezier(.42,.29,0,1.28);
-
-    overflow: hidden;
-    overflow-wrap: break-word;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.9);
-    border-radius: 0.3rem;
-
-}
-
-#hover-content {
-    /* position: absolute; */
-    bottom: 0;
-}
-
-.entry {
-    pointer-events: none;
-
-    /* padding-top: 1px;
-    padding-bottom: 1px;
-    padding-left: 7px;
-    padding-right: 7px;
-    border-radius: 5px; */
-    padding-top: 0.1rem;
-    padding-bottom: 0.1rem;
-    padding-left: 0.4rem;   
-    padding-right: 0.4rem;
-    
-    /* vertical-align: middle;
-    align-items: center; */
-
-    -webkit-backdrop-filter: blur(3px); 
-    backdrop-filter: blur(3px);
-    transition: background 1s ease-in-out;
-}
-
-.rainbow {
-    /* background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(306, 92%, 54%, .8), hsla(137, 92%, 54%, .8),); */
-    background: linear-gradient(to right,
-    hsl(223deg 92% 54%) 0%,
-    hsl(254deg 91% 65%) 9%,
-    hsl(277deg 87% 61%) 18%,
-    hsl(296deg 80% 56%) 27%,
-    hsl(316deg 100% 50%) 36%,
-    hsl(1deg 100% 64%) 45%,
-    hsl(42deg 100% 49%) 55%,
-    hsl(90deg 84% 49%) 64%,
-    hsl(162deg 100% 45%) 73%,
-    hsl(193deg 100% 50%) 82%,
-    hsl(203deg 100% 50%) 91%,
-    hsl(223deg 92% 54%) 100%
-    );
-    background-size: 400%;
-	animation: gradient 15s ease infinite;
-}
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
-.m {
->>>>>>> parent of a21d6f5 (fixed readme (yep), progress on popup)
     background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(203, 92%, 54%, .5));
 }   
 
