@@ -49,3 +49,12 @@ export function messageAllTabs(message) {
     chrome.tabs.sendMessage(tab.id, message)
   } ) )
 }
+
+/* TODO:
+we need both tailwind AND local stylesheets to go together. for that, we'll inject tailwind's stylesheet
+(app.postcss) by copying its content into a <style> node created in the same js script that loads
+the main svelte component. then, inside the .svelte file, we'll have the local stylesheet.
+*/
+export function loadCss(node, filename) {
+
+}

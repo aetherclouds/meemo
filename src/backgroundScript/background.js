@@ -1,8 +1,6 @@
 import { messageAllTabs, sortObjectArrayByKey } from "../util"
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IS_DEBUG } from "../const"
 import { ankiRequest } from "../ankiConnectUtil"
-
-
 // structure:
 /* {
   LANGUAGE: {
@@ -84,7 +82,7 @@ async function updateLanguageGenders(languageData, selectedLanguages) {
       try {
         languageData[lang].genders = genders        
       } catch (e) {
-        if (!e instanceof TypeError) throw(e)
+        if (!(e instanceof TypeError)) throw(e)
       }
     })
   }

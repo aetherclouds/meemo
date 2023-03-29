@@ -97,15 +97,14 @@
 	<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
 </svelte:head>
 
-<Popup></Popup>
-<main class="h-full invisible">
+<!-- <Popup></Popup> -->
+<main class="h-full">
 	<div class="w-md mx-6 mb-6">
 		<div class="flex w-full my-2 relative">
 			<h1 class="font-extrabold text-3xl px-4 text-center text-zinc-900">OPTIONS</h1>
 			<!-- cool technique i learned: make this absolute -->
 			<div class="right-6 absolute h-full py-1 flex">
 				<button 
-				alt="save options"
 				class="bg-green-400 bg-opacity-50 border-zinc-900 border-[1.5px] rounded-l py-1 px-1 h-full
 				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100
 				z-2"
@@ -116,7 +115,6 @@
 					<img src="../icons/save.svg" class="h-full" alt="save icon">
 				</button>
 				<button 
-				alt="reset to default options"
 				class="bg-zinc-50 border-zinc-900 border-[1.5px] border-l-0 rounded-r py-1 px-1 h-full
 				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100 
 				z-2 hover:z-1"
@@ -209,8 +207,10 @@
 </main>
 
 
-<style windi:preflights:global windi:safelist:global>
-	:global(body) {
+<style src="../app.postcss" lang="scss">
+</style>
+<style>
+		:global(body) {
 		@apply bg-zinc-100 relative overflow-x-hidden;
 		font-family: 'Rubik', sans-serif;
 	}

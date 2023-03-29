@@ -1,36 +1,37 @@
 {
-    "name": "meemo",
-    "description": "uhh.. TODO!!",
-    "version": "1.0",
-    "manifest_version": 3,
+  "name": "meemo",
+  "description": "uhh.. TODO!!",
+  "version": "1.0",
+  "manifest_version": 3,
 
-    "icons": {
-      "48": "icon48.png",
-      "128": "icon128.png"
-    },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
 
-    "permissions": ["storage"],
+  "permissions": ["storage"],
 
-    "action": {},
-    "options_ui": {
-      "page": "optionsPage/options.html",
-      "open_in_tab": false
-    },
-    "background": {
-      "service_worker": "backgroundScript/background.bundle.js"
-    },
-    "content_scripts": [
-      {
-      "all_frames": true,
-      "js": [ "contentScript/content.bundle.js" ],
-      "match_about_blank": true,
-      "matches": [ "http://*/*", "https://*/*", "ftp://*/*", "file:///*" ]
-      }
-    ],
-    "web_accessible_resources": [
-      {
-        "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*"],
-        "matches": [ "<all_urls>"]
-      }
-    ] 
-  }
+  "action": {},
+  "options_ui": {
+    "page": "optionsPage/options.html",
+    "open_in_tab": false
+  },
+  "background": {
+    "service_worker": "js/backgroundScript/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+    "all_frames": true,
+    "js": [ "js/contentScript/content.js" ],
+    "match_about_blank": true,
+    "matches": [ "http://*/*", "https://*/*", "ftp://*/*", "file:///*" ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*", "js/**/*.js", "js/*.js", "js/style.css"],
+      "matches": [ "<all_urls>"]
+    }
+  ] 
+}
