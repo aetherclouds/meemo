@@ -9,7 +9,6 @@
 
 	let options = DEFAULT_OPTIONS
 	let availableLanguages = AVAILABLE_LANGUAGES
-	// this is like a 2nd 
 	// load options
 	chrome.storage.sync.get('options').then(result => {
 			options = result.options || DEFAULT_OPTIONS
@@ -107,7 +106,7 @@
 				<button 
 				class="bg-green-400 bg-opacity-50 border-zinc-900 border-[1.5px] rounded-l py-1 px-1 h-full
 				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100
-				z-2"
+				z-[2]"
 				on:click={() => {
 					syncOptions()
 					playOutlineEffect('save')
@@ -117,7 +116,7 @@
 				<button 
 				class="bg-zinc-50 border-zinc-900 border-[1.5px] border-l-0 rounded-r py-1 px-1 h-full
 				cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100 
-				z-2 hover:z-1"
+				z-[2] hover:[z-1]"
 				on:click={() => {
 					options = structuredClone(DEFAULT_OPTIONS)
 					playOutlineEffect('reset')
@@ -201,26 +200,33 @@
 			{/each}
 			<!-- TODO: credits & social media links -->
 
-			<div class="absolute w-full h-full left-0 top-0 rounded bg-zinc-500 -z-1 translate-x-1.5 translate-y-1.5 transform-gpu"></div>
+			<div class="absolute w-full h-full left-0 top-0 rounded bg-zinc-500 -z-[1] translate-x-1.5 translate-y-1.5 transform-gpu"></div>
 		</div>
 	</div>
 </main>
 
 
-<style src="../app.postcss" lang="scss">
-</style>
-<style>
-		:global(body) {
+<style lang="postcss">
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+	:global(body) {
 		@apply bg-zinc-100 relative overflow-x-hidden;
 		font-family: 'Rubik', sans-serif;
-	}
+	}	
 
 	:global(.fancy-outline) {
 		z-index: 3;
 		position: fixed;
 		pointer-events: none;
 		border-color: var(--fancy-outline-color);
+		/* bro. this css code used to work fine without this line. then SUDDENLY border wasn't showing
+		 up and I had to add border-style. and I think it's not because of TW. WHAT?? */
+		border-style: solid;
 		border-radius: 8px;
+		/* border-width: 3px; */
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
@@ -236,7 +242,7 @@
 			opacity: 100%;
 		}
 		to {
-			/* border-width: 0px; */
+			border-width: 0px;
 			width: 90vw;
 			height: 90vh;
 			opacity: 0%;

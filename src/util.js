@@ -44,17 +44,11 @@ export function sortObjectArrayByKey(_array, key) {
     return array
 }
 
+// IF YOU GET 
+// Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
+// THAT JUST MEANS the content script is inactive in that tab. nothing to worry about.
 export function messageAllTabs(message) {
   chrome.tabs.query({}, (tabs) => tabs.forEach( tab => {
     chrome.tabs.sendMessage(tab.id, message)
   } ) )
-}
-
-/* TODO:
-we need both tailwind AND local stylesheets to go together. for that, we'll inject tailwind's stylesheet
-(app.postcss) by copying its content into a <style> node created in the same js script that loads
-the main svelte component. then, inside the .svelte file, we'll have the local stylesheet.
-*/
-export function loadCss(node, filename) {
-
 }

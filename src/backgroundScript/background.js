@@ -95,6 +95,9 @@ function updateLanguageFlagURLs(languageData, selectedLanguages) {
 }
 
 // listen to tab events
+// IF YOU GET 
+// Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
+// THAT JUST MEANS the content script is inactive in that tab. nothing to worry about.
 chrome.runtime.onMessage.addListener(
   (request, sender, sendResponse) => {
     switch (request.type) { 

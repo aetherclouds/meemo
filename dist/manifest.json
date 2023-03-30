@@ -5,15 +5,15 @@
   "manifest_version": 3,
 
   "icons": {
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "48": "icons/ext-icon48.png",
+    "128": "icons/ext-icon128.png"
   },
 
   "permissions": ["storage"],
 
   "action": {},
   "options_ui": {
-    "page": "optionsPage/options.html",
+    "page": "html/options.html",
     "open_in_tab": false
   },
   "background": {
@@ -30,7 +30,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["icon.png", "data/flags/*.svg", "data/dicts/*.csv", "icons/*", "js/**/*.js", "js/*.js", "js/style.css"],
+      "resources": [  "data/flags/*.svg", "data/dicts/*.csv", "icons/*", "js/**/*.js", "js/*.js", "css/*.css"],
       "matches": [ "<all_urls>"]
     }
   ] 

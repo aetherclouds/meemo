@@ -1,3 +1,4 @@
+<!-- TODO: make this thing look good again (migrating windicss to tailwind) -->
 <script>
     import { getContext, onMount, setContext } from 'svelte'
     import * as Util from "../util"
@@ -7,7 +8,7 @@
     
     export let rootNode
     export let shadowRootNode
-    export let parentDocument
+    export let parentDocument = document
     
     let isExtensionOn = false
     let pageWidth
@@ -237,38 +238,41 @@
         }
     }
     
-    </script>
+</script>
     
-    <div id="hover" class="select-none absolute truncate text-white rounded" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
-        <div id="hover-content" class="" bind:this={hoverContentNode}>
-            {#each hoverContent as entry}
-                {#if entry.isSvelteComponent}
-                    <svelte:component this={entry.component} {...entry.props}/>
-                {:else}
-                    <div class="{entry.gender}-entry flex pointer-events-none px-1 w-full">
-                        <div>
-                            <img src="{entry.flagURL}" class="block" alt="{entry.countryCode} flag"/>
-                        </div>
-                        <div>{entry.wordForGender}</div>
+<div id="hover" class="select-none absolute truncate text-white rounded" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
+    <div id="hover-content" class="" bind:this={hoverContentNode}>
+        {#each hoverContent as entry}
+            {#if entry.isSvelteComponent}
+                <svelte:component this={entry.component} {...entry.props}/>
+            {:else}
+                <div class="{entry.gender}-entry flex pointer-events-none px-1 w-full">
+                    <div>
+                        <img src="{entry.flagURL}" class="block" alt="{entry.countryCode} flag"/>
                     </div>
-                {/if}
-            {/each} 
-        </div>
+                    <div>{entry.wordForGender}</div>
+                </div>
+            {/if}
+        {/each} 
     </div>
-    <div bind:this={staticHoverNode} id="static-hover" class="absolute">
-    </div>
-    
-    <style>
+</div>
+<div bind:this={staticHoverNode} id="static-hover" class="absolute">
+</div>
+
+<style lang="postcss">
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
     .m-entry {
         background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(203, 92%, 54%, .5));
     }   
-    
+
     .f-entry {
-        background: linear-gradient(to right, hsla(300, 7%, 8%, 0.8), hsla(284, 92%, 54%, .5));
+        background: linear-gradient(to right, hsla(306, 92%, 54%, .8), hsla(284, 92%, 54%, .5));
     }
-    
+
     .n-entry {
         background: linear-gradient(to right, hsla(137, 92%, 54%, .8), hsla(117, 92%, 54%, .5));
     }
-    </style>
-        
+</style>
+    
