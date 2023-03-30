@@ -32,7 +32,7 @@
 </div>
 <style>
 .icon {
-    height: 16px;
+    height: 18px;
     /* https://stackoverflow.com/a/37596806 */
     display: block;
 }

@@ -240,16 +240,14 @@
     
 </script>
     
-<div id="hover" class="select-none absolute truncate text-white rounded" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
+<div id="hover" class="select-none absolute truncate text-white rounded z-[999]" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
     <div id="hover-content" class="" bind:this={hoverContentNode}>
         {#each hoverContent as entry}
             {#if entry.isSvelteComponent}
                 <svelte:component this={entry.component} {...entry.props}/>
             {:else}
-                <div class="{entry.gender}-entry flex pointer-events-none px-1 w-full">
-                    <div>
-                        <img src="{entry.flagURL}" class="block" alt="{entry.countryCode} flag"/>
-                    </div>
+                <div class="blurry-bg {entry.gender}-entry flex pointer-events-none px-1 w-full items-center text-center text-sm font-bold">
+                    <img src="{entry.flagURL}"class="block mr-1 rounded-[3px]" alt="{entry.countryCode} flag"/>
                     <div>{entry.wordForGender}</div>
                 </div>
             {/if}
@@ -263,16 +261,27 @@
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
-    .m-entry {
+    :global(.m-entry) {
         background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(203, 92%, 54%, .5));
     }   
 
-    .f-entry {
+    :global(.f-entry) {
         background: linear-gradient(to right, hsla(306, 92%, 54%, .8), hsla(284, 92%, 54%, .5));
     }
 
-    .n-entry {
+    :global(.n-entry) {
         background: linear-gradient(to right, hsla(137, 92%, 54%, .8), hsla(117, 92%, 54%, .5));
     }
+
+    #hover {
+        transition: top .15s, left .15s, opacity .15s ease-in-out;
+        transition-timing-function: cubic-bezier(.42,.29,0,1.28);
+    }
+        
+    .blurry-bg {
+        -webkit-backdrop-filter: blur(3px); 
+        backdrop-filter: blur(3px);
+    }
+
 </style>
     

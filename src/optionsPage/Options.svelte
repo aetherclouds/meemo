@@ -207,10 +207,10 @@
 
 
 <style lang="postcss">
-/* Write your global styles here, in PostCSS syntax */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+	/* Write your global styles here, in PostCSS syntax */
+	@tailwind base;
+	@tailwind components;
+	@tailwind utilities;
 
 	:global(body) {
 		@apply bg-zinc-100 relative overflow-x-hidden;

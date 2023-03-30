@@ -10,19 +10,21 @@
 		const rootNode = document.createElement('div')
 		rootNode.id = EXTENSION_ALIAS + '-root'
 		const shadowRootNode = rootNode.attachShadow({mode: 'open'})
-	
+
 		// since we're injecting svelte through js we have to add the css manually
 		const cssNode = document.createElement('link')
 		cssNode.rel = 'stylesheet'	
-		cssNode.href = chrome.runtime.getURL('js/style.css')
+		cssNode.href = chrome.runtime.getURL('css/style.css')
+		cssNode.classList.add('darkreader')
 		shadowRootNode.appendChild(cssNode)
-	
+
+
 		// load svelte app
 		app = new App({
 			target: shadowRootNode,
 			props: {	
 				rootNode,
-				shadowRootNode,
+				// shadowRootNode,
 				parentDocument: document,
 			},
 		})
