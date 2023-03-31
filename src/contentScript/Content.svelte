@@ -261,6 +261,7 @@
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
+    
     :global(.m-entry) {
         background: linear-gradient(to right, hsla(223, 92%, 54%, .8), hsla(203, 92%, 54%, .5));
     }   

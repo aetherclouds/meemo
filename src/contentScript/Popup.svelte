@@ -313,6 +313,7 @@
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
+
     .blur-bg {
         -webkit-backdrop-filter: blur(3px); 
         backdrop-filter: blur(3px);
@@ -329,27 +330,7 @@
         -moz-background-clip: text;
         -moz-text-fill-color: transparent;
     }
-
-    .bg-zinc-800-trs {
-        background-color: rgb(39 39 42 / 0.9);
-    }
-
-    .hover\:bg-zinc-500-trs:hover {
-        background-color: rgba(113, 113, 122, 0.2);
-    }
-
-    .bg-zinc-500-trs {
-        background-color: rgba(113, 113, 122, 0.2);
-    }
-
-    /* .label {
-        transition: padding-left 100ms;
-    } */
-
-    /* .label-on-focus:focus-within > .label {
-        padding-left: 10px;
-    } */
-
+    
     :global(.replaceable) {
         @apply text-blue-400;
     }
@@ -361,9 +342,5 @@
 
     .webkit-text-transparent {
         -webkit-text-fill-color: transparent;
-    }
-
-    .focus\:cool-border:focus {
-        border-style: solid;
     }
 </style>
