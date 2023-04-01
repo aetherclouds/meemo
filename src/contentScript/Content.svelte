@@ -56,7 +56,7 @@
     
         // check if extension is globally enabled 
         chrome.runtime.sendMessage({type: 'isExtensionOn'}, response => {
-            console.log('checking: isExtensionOn?',response.isExtensionOn)
+            console.log(EXTENSION_ALIAS, ': checking: isExtensionOn?',response.isExtensionOn)
             // check if isExtensionOn is already on so we don't run this function twice
             if (response.isExtensionOn && !isExtensionOn) {
                 enableExtension() 
@@ -71,7 +71,6 @@
     // LISTEN TO MESSAGES FROM BACKGROUND SCRIPT
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
-            console.log('receiving request:', request.type)
             switch (request.type) {
                 case 'enableExtension':
                     if (!isExtensionOn) enableExtension()

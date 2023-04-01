@@ -16,7 +16,6 @@
     export let contentToSave = undefined
     export let initialX = 0
     export let initialY = 0
-    console.log('initialY', initialY)
     let popupNode
     let isPopupBeingDragged = false
     let isPopupEnabled = false
@@ -164,7 +163,7 @@
                 return obj
             }
         }, {})
-        console.log('saving fields:', fieldsData)
+        // console.log('saving fields:', fieldsData)
         chrome.storage.sync.set({savedFields: fieldsData})
     }
 

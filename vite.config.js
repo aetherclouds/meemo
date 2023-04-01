@@ -11,6 +11,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+          sourcemap: false,
           // don't use this - we already have lib.fileName for that
           // entryFileNames: 'js/[name].js',
           chunkFileNames: 'js/[name].js',

@@ -28,6 +28,7 @@ chrome.runtime.onInstalled.addListener(() => {
 let options = loadOptions()
 var isExtensionOn = options.shouldStartEnabled.value
 updateBadgeText()
+initLanguages()
 
 function initLanguages() {
   let selectedLanguages = options.selectedLanguages.value
@@ -61,7 +62,7 @@ function updateLanguageDict(languageData, selectedLanguages) {
       }) 
       console.log(language, 'language dict is loaded with', Object.keys(languageData[language].dict).length, 'entries')
     } else {
-      console.error(EXTENSION_ALIAS + ' was unable to load dict for ' + language)
+      console.error(EXTENSION_ALIAS, ': unable to load dict for ' + language)
     }
   })
 }
@@ -146,7 +147,7 @@ chrome.action.onClicked.addListener((tab) => {
 
   isExtensionOn = !isExtensionOn
   updateBadgeText()
-  console.log('toggling extension! now', isExtensionOn)
+  console.log(EXTENSION_ALIAS, ': toggling extension! now', isExtensionOn)
 });
 
 function updateBadgeText() {
