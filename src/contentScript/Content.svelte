@@ -1,4 +1,3 @@
-<!-- TODO: make this thing look good again (migrating windicss to tailwind) -->
 <script>
     import { getContext, onMount, setContext } from 'svelte'
     import * as Util from "../util"
@@ -37,7 +36,7 @@
     })
     
     let hoverContent = []
-    
+
     onMount(() => {
         // --- run on domready
         if (parentDocument.readyState === 'complete') {
@@ -76,6 +75,7 @@
     // LISTEN TO MESSAGES FROM BACKGROUND SCRIPT
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
+            console.log('receiving request:', request.type)
             switch (request.type) {
                 case 'enableExtension':
                     if (!isExtensionOn) enableExtension()
@@ -147,20 +147,17 @@
             // TODO: fix hover hiding atop of page if it's too high up
             hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((hoverNode.offsetHeight + options.distanceToMouse.value) * options.UIScale.value)
     
-            console.log('rect', selectionRect)
             showHover([{
                 isSvelteComponent: true,
                 component: ToolBar,
                 props: {    
                     staticHoverNode, 
-                    clientX: selectionRect.left, 
-                    clientY: selectionRect.top, 
                     parentDocument, 
-                    selectionText
+                    selectionText,
+                    hideToolbar: () => {isMakingSelection=false;hideHover()},
+                    options
                 },
             }])
-    
-            console.log('trying', hoverContent)
     
         } else {
             isMakingSelection = false
@@ -248,13 +245,13 @@
             {:else}
                 <div class="blurry-bg {entry.gender}-entry flex pointer-events-none px-1 w-full items-center text-center text-sm font-bold">
                     <img src="{entry.flagURL}"class="block mr-1 rounded-[3px]" alt="{entry.countryCode} flag"/>
-                    <div>{entry.wordForGender}</div>
+                    <div class="opacity-90">{entry.wordForGender}</div>
                 </div>
             {/if}
         {/each} 
     </div>
 </div>
-<div bind:this={staticHoverNode} id="static-hover" class="absolute">
+<div bind:this={staticHoverNode} id="static-hover" class="absolute left-0 top-0">
 </div>
 
 <style lang="postcss">
@@ -275,6 +272,9 @@
     }
 
     #hover {
+        transform-origin: bottom left;
+        scale: var(--UIScale);
+        
         transition: top .15s, left .15s, opacity .15s ease-in-out;
         transition-timing-function: cubic-bezier(.42,.29,0,1.28);
     }

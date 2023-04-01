@@ -14,7 +14,7 @@ export class AnkiResponseError extends Error {
 
 export async function ankiRequestThroughBg(action, params={}) {
   const response = (await chrome.runtime.sendMessage({type: 'runAnkiRequest', data: {action, params}})).response
-  console.log('receiving response:', response)
+  // console.log('receiving anki response:', response)
   if (response.error) {
     console.error(response.error)
     switch (response.error) {

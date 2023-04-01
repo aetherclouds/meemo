@@ -3,31 +3,36 @@
 
 
     export let staticHoverNode
-    export let clientX
-    export let clientY
     export let parentDocument
     export let selectionText
+    export let hideToolbar
+    export let options
+    let toolbarNode
     let popup
 
-    function spawnPopup(ankiProps) {
+    function spawnPopup() {
+        const toolbarRect = toolbarNode.getBoundingClientRect() 
         popup = new Popup({
             target: staticHoverNode,
             props: {
                 parentDocument,
                 staticHoverNode,
-                initialX: clientX,
-                initialY: clientY,
+                initialX: toolbarRect.left + (options.shouldPopupBePinned.value ? 0 : document.documentElement.scrollLeft || document.body.scrollLeft),
+                initialY: toolbarRect.top + (options.shouldPopupBePinned.value ? 0 : document.documentElement.scrollTop || document.body.scrollTop),
                 contentToSave: selectionText,
-            }
+                options
+            },
+            // intro: true,
         })
     }
 
     function handleClickAnki() {
         spawnPopup()
+        hideToolbar()
     }
 </script>
 
-<div class="panel" on:click={handleClickAnki}>
+<div class="panel" on:click={handleClickAnki} bind:this={toolbarNode}>
     <img src={chrome.runtime.getURL(`icons/anki.png`)} alt="Save 2 Anki" class="icon">
 </div>
 <style>

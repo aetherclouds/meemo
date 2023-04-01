@@ -15,9 +15,9 @@
 		const cssNode = document.createElement('link')
 		cssNode.rel = 'stylesheet'	
 		cssNode.href = chrome.runtime.getURL('css/style.css')
+		// remove darkreader - https://github.com/darkreader/darkreader/issues/4144#issuecomment-729896113
 		cssNode.classList.add('darkreader')
 		shadowRootNode.appendChild(cssNode)
-
 
 		// load svelte app
 		app = new App({

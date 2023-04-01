@@ -1,10 +1,8 @@
 <!-- 
-	TODO: absolute/fixed toggle for popup
 	TODO: on/off on start toggle
  -->
 <script>		
 	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS} from '../const'
-    import Popup from '../contentScript/Popup.svelte';
 	import {horizontalSlideDisconsiderBorder} from '../svelteTransition'
 
 	let options = DEFAULT_OPTIONS
@@ -46,7 +44,7 @@
 		
 	}
 
-	function handleInput(target, optionTitle, type) {
+	function handleFloatInput(target, optionTitle, type) {
 		let value = target.value
 		switch (type) {
 			case 'number': {
@@ -133,21 +131,26 @@
 				<div class="w-full flex">
 					<div class="my-auto">
 						<h2 class="text-xl font-medium text-zinc-900">{optionTitle}</h2>
-						<h3 class="text-xs text-zinc-500">{optionDetails.description}</h3>
+						<h3 class="text-xs text-zinc-500 pr-2">{optionDetails.description}</h3>
 					</div>
-					{#if optionDetails.type != 'languageSelection'}
-					<input type="number" required
-					class="appearance-none outline-none border-zinc-900 bg-transparent my-auto ml-auto min-w-8 w-0 max-w-max border-[1.5px] rounded 
-					placeholder-zinc-500 font-medium text-xl text-zinc-900 text-center py-0.5
-					ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 transition-input-field duration-100" 
-					style={`width: calc(${optionDetails.value.toString().length}ch + 1rem);`}
-					on:input={(e) => {
-						e.target.style.width = `calc(${e.target.value.length}ch + 1rem)`
-					}}
-					on:change={(e) => {
-						handleInput(e.target, optionTitle, 'number')
-					}}
-					value={optionDetails.value}>
+					{#if optionDetails.type == 'float'}
+						<input type="number" required
+						class="appearance-none outline-none border-zinc-900 bg-transparent my-auto ml-auto min-w-8 w-0 max-w-max border-[1.5px] rounded 
+						placeholder-zinc-500 font-medium text-xl text-zinc-900 text-center py-0.5
+						ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 transition-input-field duration-100" 
+						style={`width: calc(${optionDetails.value.toString().length}ch + 1rem);`}
+						on:input={(e) => {
+							e.target.style.width = `calc(${e.target.value.length}ch + 1rem)`
+						}}
+						on:change={(e) => {
+							handleFloatInput(e.target, optionTitle, 'number')
+						}}
+						value={optionDetails.value}>
+					{:else if optionDetails.type == 'bool'}
+						<input type="checkbox" required
+						class="outline-none border-zinc-900 bg-transparent my-auto ml-auto border-[1.5px] rounded w-6 h-6
+						ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 duration-100" 	
+						bind:checked={optionDetails.value}>
 					{/if}
 				</div>
 				<!-- bottom bar - only needed for certain types of options -->
@@ -158,6 +161,7 @@
 					cursor-pointer ring-0 hover:ring-[1.5px] ring-zinc-400 transition-ring duration-100"
 					transition:horizontalSlideDisconsiderBorder={{axis: 'x', duration: 200}}
 					>
+							<!-- TODO: stop this hackery and use set fixed size -->
 							<!-- added these just so we get the right sizing -->
 							<img src="../data/flags/PT.svg" class="h-4.5 block mr-1 invisible"/>
 							<p class="invisible">de</p>
@@ -271,6 +275,34 @@
 
 	input[type=number] {
 		-moz-appearance:textfield; /* Firefox */
+	}
+
+	/* inspo: https://moderncss.dev/pure-css-custom-checkbox-style/ */
+	input[type="checkbox"] {
+		appearance: none;
+		display: grid;
+		place-content: center;
+	}
+
+
+	input[type="checkbox"]::before {
+		transform-origin: center;
+		clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+
+		content: "";
+		width: inherit;
+		height: inherit;
+		background-color: rgb(24 24 2);
+		/* border-radius: 0.25rem;
+		border-width: 1.5px;
+		border-color: rgb(24 24 2); */
+		transform: scale(0);
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 100ms;
+	}
+
+	input[type="checkbox"]:checked::before {
+		transform: scale(.4);
 	}
 
 
