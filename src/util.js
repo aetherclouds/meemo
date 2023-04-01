@@ -59,7 +59,6 @@ export function escapeHtml(content) {
   for (const [key, value] of Object.entries(HTML_ESCAPE_LIST)) {
     content = content.replaceAll(key, value)
   }
-  content
   return content
 }
 

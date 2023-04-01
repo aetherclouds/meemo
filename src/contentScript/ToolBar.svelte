@@ -10,7 +10,7 @@
     let toolbarNode
     let popup
 
-    function spawnPopup() {
+    function mountPopup() {
         const toolbarRect = toolbarNode.getBoundingClientRect() 
         popup = new Popup({
             target: staticHoverNode,
@@ -27,7 +27,7 @@
     }
 
     function handleClickAnki() {
-        spawnPopup()
+        mountPopup()
         hideToolbar()
     }
 </script>

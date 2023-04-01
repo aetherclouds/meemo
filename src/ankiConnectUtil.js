@@ -16,7 +16,7 @@ export async function ankiRequestThroughBg(action, params={}) {
   const response = (await chrome.runtime.sendMessage({type: 'runAnkiRequest', data: {action, params}})).response
   // console.log('receiving anki response:', response)
   if (response.error) {
-    console.error(response.error)
+    // console.error(response.error)
     switch (response.error) {
       case 'AnkiConnectionError':
         throw new AnkiConnectionError()

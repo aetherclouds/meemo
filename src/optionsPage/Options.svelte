@@ -1,8 +1,7 @@
 <!-- 
-	TODO: on/off on start toggle
  -->
 <script>		
-	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS} from '../const'
+	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS, OPTION_ORDER} from '../const'
 	import {horizontalSlideDisconsiderBorder} from '../svelteTransition'
 
 	let options = DEFAULT_OPTIONS
@@ -11,7 +10,7 @@
 	chrome.storage.sync.get('options').then(result => {
 			options = result.options || DEFAULT_OPTIONS
 	})
-
+	
 	function updateOptions() {
 		options = options
 
@@ -125,36 +124,36 @@
 		</div>
 		<div class="bg-zinc-50 border-zinc-900 border-[1.5px] rounded relative">
 			<!-- option entries -->
-			{#each Object.entries(options) as [optionTitle, optionDetails], i}
+			{#each OPTION_ORDER as option, i}
 			<div class="px-4 py-3 border-zinc-900 {i+1<Object.keys(options).length ? 'border-b-[1.5px]' : ''}">
 				<!-- top bar -->
 				<div class="w-full flex">
 					<div class="my-auto">
-						<h2 class="text-xl font-medium text-zinc-900">{optionTitle}</h2>
-						<h3 class="text-xs text-zinc-500 pr-2">{optionDetails.description}</h3>
+						<h2 class="text-xl font-medium text-zinc-900">{option}</h2>
+						<h3 class="text-xs text-zinc-500 pr-2">{options[option].description}</h3>
 					</div>
-					{#if optionDetails.type == 'float'}
+					{#if options[option].type == 'float'}
 						<input type="number" required
 						class="appearance-none outline-none border-zinc-900 bg-transparent my-auto ml-auto min-w-8 w-0 max-w-max border-[1.5px] rounded 
 						placeholder-zinc-500 font-medium text-xl text-zinc-900 text-center py-0.5
-						ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 transition-input-field duration-100" 
-						style={`width: calc(${optionDetails.value.toString().length}ch + 1rem);`}
+						ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 ring-offset-zinc-50 transition-input-field duration-100" 
+						style={`width: calc(${options[option].value.toString().length}ch + 1rem);`}
 						on:input={(e) => {
 							e.target.style.width = `calc(${e.target.value.length}ch + 1rem)`
 						}}
 						on:change={(e) => {
-							handleFloatInput(e.target, optionTitle, 'number')
+							handleFloatInput(e.target, option, 'number')
 						}}
-						value={optionDetails.value}>
-					{:else if optionDetails.type == 'bool'}
+						value={options[option].value}>
+					{:else if options[option].type == 'bool'}
 						<input type="checkbox" required
 						class="outline-none border-zinc-900 bg-transparent my-auto ml-auto border-[1.5px] rounded w-6 h-6
 						ring-0 ring-offset-0 hover:ring-[1.5px] focus:ring-offset-1 focus:ring-[1.5px] ring-zinc-400 duration-100" 	
-						bind:checked={optionDetails.value}>
+						bind:checked={options[option].value}>
 					{/if}
 				</div>
 				<!-- bottom bar - only needed for certain types of options -->
-				{#if (optionDetails.type == 'languageSelection')}
+				{#if (options[option].type == 'languageSelection')}
 				<div class="mt-3 flex">
 					{#if (options.selectedLanguages.value.length < availableLanguages.length)}
 					<div class="focus-within:ring-offset-1 focus-within:ring-[1.5px] border-[1.5px] rounded border-zinc-900 relative max-w-full p-0.5 flex font-medium text-xl 
@@ -186,7 +185,7 @@
 					</div>
 					{/if}
 					{#each AVAILABLE_LANGUAGES as language}
-					{#if optionDetails.value.includes(language)}
+					{#if options[option].value.includes(language)}
 					<button class="border-[1.5px] relative overflow-hidden max-w-full rounded border-zinc-900 p-0.5 flex font-medium text-xl text-center ml-1 language-box 
 					cursor-pointer hover:ring-[1.5px] ring-red-400 ring-opacity-50 transition-ring duration-100"
 					on:click={() => handleRemoveLanguage(language)}

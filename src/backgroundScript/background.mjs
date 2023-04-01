@@ -22,7 +22,13 @@ import { ankiRequest } from "../ankiConnectUtil"
 var languageData = {}
 
 chrome.runtime.onInstalled.addListener(() => {
+  console.log('setting', DEFAULT_OPTIONS)
   chrome.storage.sync.set({options: DEFAULT_OPTIONS})
+  // redirect to options on install
+  chrome.tabs.create({
+    url: 'chrome://extensions/?options='+chrome.runtime.id,
+    active: true,
+  })
 })
 
 let options = loadOptions()
@@ -123,7 +129,6 @@ chrome.runtime.onMessage.addListener(
           sendResponse({response})
         })
         return true
-        break
 
       default:
         break

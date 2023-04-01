@@ -30,6 +30,8 @@ export const DEFAULT_OPTIONS = {
     },
 
 }
+// quick hack to retain object order. we only need it for display in the options page so this is fine
+export const OPTION_ORDER = Object.keys(DEFAULT_OPTIONS)
 
 export const AVAILABLE_LANGUAGES = ['pt', 'de']
 
@@ -39,4 +41,4 @@ export const HTML_ESCAPE_LIST = {
     '>': '&gt;',
 }
 
-export const REPLACEMENT_STRING = '$replace$'
+export const REPLACEMENT_STRING = '$rplc$'

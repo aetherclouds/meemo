@@ -138,7 +138,6 @@
         
             hoverX = selectionRect.x + (selectionRect.width / 2) - (hoverNode.offsetWidth / 2)
             // https://stackoverflow.com/a/7436602
-            // hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value)
             // TODO: fix hover hiding atop of page if it's too high up
             hoverY = selectionRect.y + parentDocument.documentElement.scrollTop - ((hoverNode.offsetHeight + options.distanceToMouse.value) * options.UIScale.value)
     
@@ -232,7 +231,7 @@
     
 </script>
     
-<div id="hover" class="select-none absolute truncate text-white rounded z-[999]" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
+<div id="hover" class="select-none absolute truncate text-white rounded z-[9999]" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
     <div id="hover-content" class="" bind:this={hoverContentNode}>
         {#each hoverContent as entry}
             {#if entry.isSvelteComponent}
@@ -246,7 +245,7 @@
         {/each} 
     </div>
 </div>
-<div bind:this={staticHoverNode} id="static-hover" class="absolute left-0 top-0">
+<div bind:this={staticHoverNode} id="static-hover" class="absolute left-0 top-0 z-[99999]">
 </div>
 
 <style lang="postcss">
