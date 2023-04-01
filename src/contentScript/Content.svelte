@@ -29,11 +29,7 @@
     // TODO: see how to change this variable (check if reverse flow prop assignment works, otherwise use getContext and setContext)
     let popupProps = {}
     
-    let options = DEFAULT_OPTIONS
-    // load options
-    chrome.storage.sync.get('options').then(result => {
-        options = result.options || DEFAULT_OPTIONS
-    })
+    let options = Util.loadOptions()
     
     let hoverContent = []
 

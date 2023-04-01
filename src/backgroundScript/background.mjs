@@ -1,4 +1,4 @@
-import { messageAllTabs, sortObjectArrayByKey } from "../util"
+import { loadOptions, messageAllTabs, sortObjectArrayByKey } from "../util"
 import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IS_DEBUG } from "../const"
 import { ankiRequest } from "../ankiConnectUtil"
 // structure:
@@ -25,7 +25,9 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({options: DEFAULT_OPTIONS})
 })
 
-let options = DEFAULT_OPTIONS
+let options = loadOptions()
+var isExtensionOn = options.shouldStartEnabled.value
+updateBadgeText()
 
 function initLanguages() {
   let selectedLanguages = options.selectedLanguages.value
@@ -39,14 +41,6 @@ function initLanguages() {
   // console.log(languageData)
 
 }
-// setup: retrieve options and update local maps
-chrome.storage.sync.get('options').then(result => {
-  options = result.data || DEFAULT_OPTIONS
-  initLanguages()
-})
-
-var isExtensionOn = options.shouldStartEnabled.value
-updateBadgeText()
 
 // load word dictionary into memory
 function updateLanguageDict(languageData, selectedLanguages) {

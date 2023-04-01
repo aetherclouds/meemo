@@ -8,8 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-build/js
-build/css
+dist/js
+dist/css
 dist-ssr
 *.local
 

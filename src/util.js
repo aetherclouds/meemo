@@ -1,4 +1,4 @@
-import { HTML_ESCAPE_LIST } from "./const";
+import { DEFAULT_OPTIONS, HTML_ESCAPE_LIST } from "./const";
 
 // https://stackoverflow.com/a/1038781
 export function getPageWidth() {
