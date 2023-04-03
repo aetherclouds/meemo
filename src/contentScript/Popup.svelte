@@ -1,7 +1,3 @@
-<!-- TODO:
-    when canSubmit is off, make it visible & disable submit button
-    add a little movement animation ;) (or maybe not because sounds like bad UX)
--->
 <script>
     import { onMount } from "svelte/internal";
     import {addNote, AnkiConnectionError, AnkiResponseError, getDeckNames, getModelFieldNames, getModelNames} from '../ankiConnectUtil'
@@ -12,7 +8,7 @@
     export let staticHoverNode
     export let parentDocument = document
     export let options
-    export let contentToSave = undefined
+    export let contentToSave = undefined    
     export let initialX = 0
     export let initialY = 0
     let popupNode
@@ -199,7 +195,6 @@
         
     function handleDragMouseMove(e) {
         e.preventDefault()
-        // TODO: drag could have an animation
         popupNode.style.left = (options.shouldPopupBePinned.value ? e.clientX : e.pageX) + initialDragOffsetX + 'px'
         popupNode.style.top = (options.shouldPopupBePinned.value ? e.clientY : e.pageY) + initialDragOffsetY + 'px'
     }
@@ -326,28 +321,35 @@
 <dialog open bind:this={popupNode} class="{options.shouldPopupBePinned.value ? 'fixed' : 'absolute'} p-0 m-0 bg-transparent popup"
 style="--UIScale: {options.UIScale.value}"
 >
+    <!-- 
+        {isPopupBeingDragged  ? 
+            'shadow-xl shadow-black/10'
+            : 'shadow-sm ' 
+            +  ((highlightSubmitSuccessful || messageType=='success') ? 
+                'shadow-green-400'
+                : (messageType ?
+                    'shadow-red-400'
+                    : '' ))
+        }
+    -->
     {#if isPopupEnabled}
     <div class="bg-zinc-800/90 w-[20rem] max-w-[20rem] rounded-[0.3rem] blur-bg relative border
     {isPopupBeingDragged  ? 
         'shadow-xl shadow-black/10'
-        : (messageType!='' || highlightSubmitSuccessful) ? 
-            'shadow-sm'
-            : 'shadow-none'
+        : 'shadow-sm '
     }
-    {!isPopupBeingDragged ? 
-        messageType ? 
-            (messageType!='success') && !highlightSubmitSuccessful ? 
-                'shadow-red-400 border-red-400'
-                : 'shadow-green-400 border-green-400' 
-            : (highlightSubmitSuccessful) ? 
-                'shadow-green-400 border-green-400'
-                : 'border-transparent'
-        : 'border-transparent'    
+    {messageType ? 
+        (messageType!='success') && !highlightSubmitSuccessful ? 
+            'border-red-400'
+            : 'border-green-400' 
+        : (highlightSubmitSuccessful) ? 
+            'border-green-400'
+            : 'border-transparent'
     }
-    {highlightWarnClose ? ' ring-2 ring-blue-400 ' : ''}
+    {highlightWarnClose ? ' ring-1 ring-blue-400 ' : ''}
     duration-100"
     style="transition-property: box-shadow, border-color;"
-    transition:horizontalSlideDisconsiderBorder={{axis: 'y', duration: TRANSITION_DURATION_MS}}
+    transition:horizontalSlideDisconsiderBorder={{axis: 'y', duration: options.useMotion.value ? TRANSITION_DURATION_MS : 0}}
     >
         <div draggable class="w-full h-min py-1.5 rounded-[0.3rem] box-border flex cursor-move
         hover:bg-zinc-500/20 transition-colors duration-100
@@ -369,7 +371,7 @@ style="--UIScale: {options.UIScale.value}"
             </h1>
             {#if messageType}
             <div class="rounded-[0.3rem] border {messageType == 'success' ? 'border-green-400' : 'border-red-400'} text-zinc-300 px-2 py-1 mb-3 flex flex-col h-max text-xs hyphens-auto" style="transition: border-color 500ms, height 500ms;"
-                transition:horizontalSlideDisconsiderBorder={{axis: 'y', duration: 500}}
+                transition:horizontalSlideDisconsiderBorder={{axis: 'y', duration: options.useMotion.value ? 500 : 0}}
             >
                 <div>
                 {#if messageType == 'connection'}
@@ -391,7 +393,10 @@ style="--UIScale: {options.UIScale.value}"
             <div class="text-xs text-zinc-400 mb-3 mx-auto flex items-center">
                 <span class="replaceable">{REPLACEMENT_STRING}</span>
                 <span>&nbsp;&rarr;&nbsp;</span>
-                <span contenteditable class="break-all text-zinc-300 rounded hover:bg-zinc-500/20 border-transparent hover:border-zinc-400 outline-none focus:border-blue-400 transition-colors duration-100 border px-1" bind:innerHTML={contentToSave} on:input={(e) => {let content = e.target.innerHTML; content = escapeHtml(content)}}></span>
+                <span contenteditable class="break-all text-zinc-300 rounded hover:bg-zinc-500/20 border-transparent hover:border-zinc-400 outline-none focus:border-blue-400 transition-colors duration-100 border px-1" 
+                bind:innerHTML={contentToSave} on:input={(e) => {let content = e.target.innerHTML; content = escapeHtml(content)}}
+                style="min-width: 10px;"
+                ></span>
             </div>
             {/if}
             <form action="" class="text-zinc-300 text-sm" on:submit|preventDefault={handleSubmit} id="leForm">
@@ -438,7 +443,7 @@ style="--UIScale: {options.UIScale.value}"
                     </div>
                 {/each}
                 <div class="opacity-0 block mb-0.5">&nbsp;</div>
-                <button type="submit" class="w-full rounded-[0.3rem] bg-zinc-500/20 border border-zinc-600 text-sm py-1 appearance-none outline-none hover:border-blue-400 hover:text-blue-400 focus:border-blue-400 focus:text-blue-400 shadow-none focus:shadow-inner disabled:bg transition-colors duration-100" disabled={!canSubmit || undefined}>Add that thing!</button>
+                <button type="submit" class="w-full rounded-[0.3rem] bg-zinc-500/20 border border-zinc-600 text-sm py-1 appearance-none outline-none enabled:hover:border-blue-400 enabled:hover:text-blue-400 focus:border-blue-400 focus:text-blue-400 shadow-none focus:shadow-inner disabled:opacity-80 disabled-border-zinc-600 transition-colors duration-100" disabled={!canSubmit || undefined}>Add that thing!</button>
             </form>
         </div>
     </div>

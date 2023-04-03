@@ -1,8 +1,13 @@
-export const IS_DEBUG = true // FIXME:
+export const IS_DEBUG = false
 
 export const EXTENSION_ALIAS = 'meemo'
 
 export const DEFAULT_OPTIONS = {
+    selectedLanguages: {
+        description: 'The languages that the selected word will be matched against',
+        type: 'languageSelection',
+        value: ['de']
+    },
     shouldStartEnabled: {
         description: 'Whether the extension should be enabled by default upon opening the browser',
         type: 'bool',
@@ -18,22 +23,25 @@ export const DEFAULT_OPTIONS = {
         type: 'float',
         value: 8
     },
-    selectedLanguages: {
-        description: 'The languages that the selected word will be matched against',
-        type: 'languageSelection',
-        value: ['de']
-    },
     shouldPopupBePinned: {
         description: 'Whether popup should stay fixed to the screen rather than the page',
         type: 'bool',
         value: true,
     },
+    useMotion: {
+        description: 'Play animations and transitions, such as when moving your cursor or spawning the popup (disabling this should help if your computer is a literal potato)',
+        type: 'bool',
+        value: true,
+    }
 
 }
 // quick hack to retain object order. we only need it for display in the options page so this is fine
 export const OPTION_ORDER = Object.keys(DEFAULT_OPTIONS)
 
-export const AVAILABLE_LANGUAGES = ['pt', 'de']
+export const AVAILABLE_LANGUAGES = [
+    // 'pt', 
+    'de',
+]
 
 export const HTML_ESCAPE_LIST = {
     // '&': '&amp;',
@@ -41,4 +49,4 @@ export const HTML_ESCAPE_LIST = {
     '>': '&gt;',
 }
 
-export const REPLACEMENT_STRING = '$rplc$'
+export const REPLACEMENT_STRING = '$replace$'

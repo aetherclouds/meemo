@@ -26,10 +26,13 @@
     let staticHoverNode
     
     let isPopupOn = false
-    // TODO: see how to change this variable (check if reverse flow prop assignment works, otherwise use getContext and setContext)
     let popupProps = {}
     
-    let options = Util.loadOptions()
+    let options = DEFAULT_OPTIONS
+    // try load from sync
+    chrome.storage.sync.get('options').then(result => {
+        options = result.options || DEFAULT_OPTIONS
+    })
     
     let hoverContent = []
 
@@ -43,11 +46,9 @@
     })
     
     function hoverAnimateLoop() {
-        // if (isExtensionOn) {
-            hoverNode.style.left = hoverX + 'px'
-            hoverNode.style.top = hoverY + 'px'
-            window.requestAnimationFrame(hoverAnimateLoop)
-        // }
+        hoverNode.style.left = hoverX + 'px'
+        hoverNode.style.top = hoverY + 'px'
+        window.requestAnimationFrame(hoverAnimateLoop)
     }
     
     function readyParent() {
@@ -92,6 +93,7 @@
         isExtensionOn = true
         parentDocument.addEventListener('mousemove', handleMouseMove)
         parentDocument.addEventListener('selectionchange', handleSelectionChange)
+        parentDocument.addEventListener('keydown', handleKeyDown)
         
         parentDocument.body.appendChild(rootNode)
     }   
@@ -100,6 +102,8 @@
         isExtensionOn = false
         parentDocument.removeEventListener('mousemove', handleMouseMove)
         parentDocument.removeEventListener('selectionchange', handleSelectionChange)
+        parentDocument.removeEventListener('keydown', handleKeyDown)
+
     
         let existingShadowRoot = parentDocument.getElementById(`${EXTENSION_ALIAS}-root`)
         if (existingShadowRoot) {
@@ -219,6 +223,28 @@
         // update render
         updateHoverCoordinates(e)
     }
+
+    function handleKeyDown(e) {
+    e.stopImmediatePropagation()
+
+    if (document.activeElement.tagName === 'INPUT') return
+
+    if (((e.key === 'a' || e.key === 'A') && e.altKey && !e.metaKey && !e.shiftKey) ) {
+        new Popup({
+            target: staticHoverNode,
+            props: {
+                parentDocument,
+                staticHoverNode,
+                initialX: cursorX - (options.shouldPopupBePinned.value ? document.documentElement.scrollLeft || document.body.scrollLeft : 0),
+                initialY: cursorY - (options.shouldPopupBePinned.value ? document.documentElement.scrollTop || document.body.scrollTop : 0),
+                options,
+                contentToSave: '',
+            },
+            // intro: true,
+        })
+    }
+  }
+
     
     function updateHoverCoordinates(e) {
         if (!isMakingSelection) {
@@ -228,10 +254,15 @@
             hoverY = Math.max(e.pageY - hoverNode.offsetHeight - (options.distanceToMouse.value * options.UIScale.value), 10)
         }
     }
+
+    console.log('LOADED OPTIONS', options)
     
 </script>
     
-<div id="hover" class="select-none absolute truncate text-white rounded z-[9999]" bind:this={hoverNode} style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
+<div id="hover" 
+class="select-none absolute truncate text-white rounded z-[9999] {options.useMotion.value ? 'use-motion' : ''}"
+bind:this={hoverNode} 
+style="--UIScale: {options.UIScale.value}; pointer-events: {isMakingSelection ? 'all' : 'none'}">
     <div id="hover-content" class="" bind:this={hoverContentNode}>
         {#each hoverContent as entry}
             {#if entry.isSvelteComponent}
@@ -268,7 +299,9 @@
     #hover {
         transform-origin: bottom left;
         scale: var(--UIScale);
-        
+    }
+
+    .use-motion {
         transition: top .15s, left .15s, opacity .15s ease-in-out;
         transition-timing-function: cubic-bezier(.42,.29,0,1.28);
     }

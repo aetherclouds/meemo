@@ -62,13 +62,13 @@ export function escapeHtml(content) {
   return content
 }
 
-export function loadOptions() {
+export function loadOptionsInto(optionVariable) {
   let options = DEFAULT_OPTIONS
   // try load from sync
   chrome.storage.sync.get('options').then(result => {
     options = result.options || DEFAULT_OPTIONS
+    optionVariable = options
   })
-  return options
 }
 
 // ADAPTED FROM https://stackoverflow.com/a/14853974

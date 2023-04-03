@@ -31,7 +31,12 @@ chrome.runtime.onInstalled.addListener(() => {
   })
 })
 
-let options = loadOptions()
+let options = DEFAULT_OPTIONS
+// try load from sync
+chrome.storage.sync.get('options').then(result => {
+    options = result.options || DEFAULT_OPTIONS
+})
+
 var isExtensionOn = options.shouldStartEnabled.value
 updateBadgeText()
 initLanguages()

@@ -1,7 +1,7 @@
 {
   "name": "meemo",
-  "description": "uhh.. TODO!!",
-  "version": "1.0",
+  "description": "A couple versatile tools aimed at language learners!",
+  "version": "0.0.0.1",
   "manifest_version": 3,
 
   "icons": {
