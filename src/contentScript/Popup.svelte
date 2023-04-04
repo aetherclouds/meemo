@@ -393,7 +393,7 @@ style="--UIScale: {options.UIScale.value}"
             <div class="text-xs text-zinc-400 mb-3 mx-auto flex items-center">
                 <span class="replaceable">{REPLACEMENT_STRING}</span>
                 <span>&nbsp;&rarr;&nbsp;</span>
-                <span contenteditable class="break-all text-zinc-300 rounded hover:bg-zinc-500/20 border-transparent hover:border-zinc-400 outline-none focus:border-blue-400 transition-colors duration-100 border px-1" 
+                <span contenteditable class="break-all text-zinc-300 rounded hover:bg-zinc-500/20 border-transparent hover:border-zinc-400 outline-none focus:border-blue-400 focus:bg-zinc-500/20 transition-colors duration-100 border px-1" 
                 bind:innerHTML={contentToSave} on:input={(e) => {let content = e.target.innerHTML; content = escapeHtml(content)}}
                 style="min-width: 10px;"
                 ></span>
