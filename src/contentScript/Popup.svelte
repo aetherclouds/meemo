@@ -312,8 +312,8 @@
         e.target.nextElementSibling.innerHTML = replacedContent
         cardModelFieldsData[fieldName].displayHTML = replacedContent
         const displayHTMLNodeRect = e.target.nextElementSibling.getBoundingClientRect()
-        e.target.style.height = displayHTMLNodeRect.height + 'px'
-        e.target.style.width = displayHTMLNodeRect.width + 'px'
+        e.target.style.height = displayHTMLNodeRect.height / options.UIScale.value + 'px'
+        e.target.style.width = displayHTMLNodeRect.width / options.UIScale.value + 'px'
     }
 </script>
 
