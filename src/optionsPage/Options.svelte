@@ -268,9 +268,9 @@
 		margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 	}
 
-	select::-ms-expand {
+	/* select::-ms-expand {
     	display: none;
-	}
+	} */
 
 	input[type=number] {
 		-moz-appearance:textfield; /* Firefox */

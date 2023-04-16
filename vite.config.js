@@ -1,6 +1,12 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 
+const FOLDER_MAP = {
+  'content': 'contentScript',
+  'background': 'backgroundScript',
+  'options': 'optionsPage',
+} 
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -20,7 +26,7 @@ export default defineConfig({
       },
     },
     emptyOutDir: false,
-    outDir: "dist",
+    outDir: "dist/contents",
     sourcemap: true,
     lib: {
       entry: {
@@ -29,13 +35,8 @@ export default defineConfig({
         background: "./src/backgroundScript/background.mjs",
       },
       fileName: (_, entryName) => {
-        console.log('entryName:', entryName)
-        const folderMap = {
-          'content': 'contentScript',
-          'background': 'backgroundScript',
-          'options': 'optionsPage',
-        } 
-        return `js/${folderMap[entryName]}/${entryName}.js`;
+
+        return `js/${FOLDER_MAP[entryName]}/${entryName}.js`;
       },
       formats: ["es"],
     },

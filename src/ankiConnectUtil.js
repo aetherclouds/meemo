@@ -40,7 +40,7 @@ export async function ankiRequest(action, params={}, version=6) {
     body: JSON.stringify(data)
   }).then(async promisedResponse => { 
     if (!promisedResponse.ok) {
-      throw AnkiResponseError()
+      throw new AnkiResponseError()
     } else {
       const response = await promisedResponse.json()
       // console.log('unprocessed response:',response)

@@ -200,6 +200,7 @@
     }
 
     function handleDocumentMouseUp(e) {
+        console.log('click', e)
         if (e.target.id != EXTENSION_ALIAS+'-root') {
             if (highlightWarnClose) {
                 destroyPopup()

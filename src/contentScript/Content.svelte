@@ -1,5 +1,5 @@
 <script>
-    import { getContext, onMount, setContext } from 'svelte'
+    import { onMount } from 'svelte'
     import * as Util from "../util"
     import ToolBar from './ToolBar.svelte'
     import { DEFAULT_OPTIONS, EXTENSION_ALIAS } from '../const'
@@ -17,16 +17,10 @@
     let hoverX = 0,
         hoverY = 0,
         cursorX = 0,
-        cursorY = 0,
-        hoverWidth = 0,
-        hoverHeight = 0
-    let hasSelection = false
+        cursorY = 0
     let isMakingSelection = false
     let previousWord
     let staticHoverNode
-    
-    let isPopupOn = false
-    let popupProps = {}
     
     let options = DEFAULT_OPTIONS
     // try load from sync
@@ -37,12 +31,7 @@
     let hoverContent = []
 
     onMount(() => {
-        // --- run on domready
-        if (parentDocument.readyState === 'complete') {
-            readyParent()
-        } else {
-            parentDocument.addEventListener("DOMContentLoaded", readyParent())
-        }
+        readyParent()
     })
     
     function hoverAnimateLoop() {
@@ -50,7 +39,7 @@
         hoverNode.style.top = hoverY + 'px'
         window.requestAnimationFrame(hoverAnimateLoop)
     }
-    
+    ''
     function readyParent() {
         // we'll assume this is always constant cuz it probably is + saves on performance
         pageWidth = Util.getPageWidth()

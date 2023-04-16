@@ -97,3 +97,36 @@ export function compareArrays(arr1, arr2) {
   }       
   return true;
 }
+
+// https://stackoverflow.com/a/45985333
+export function getBrowser() {
+  if (typeof chrome !== "undefined") {
+    if (typeof browser !== "undefined") {
+      return "firefox"
+    } else {
+      return "chrome"
+    }
+  } else {
+    return "other"
+  }
+}
+
+export function isChrome() {
+    if (typeof browser !== "undefined") {
+      return false
+    } 
+    return true
+}
+
+export function setSyncStorage(key, callback) {
+  
+}
+
+// export function getModuleUrl(moduleName) {
+// 	if (getBrowser() == 'firefox') {
+//     console.log('getting '+moduleName, chrome.runtime.getURL(moduleName+'.js'))
+//     return chrome.runtime.getURL(moduleName+'.js')
+//   } else {
+//     return moduleName
+//   } 
+// }

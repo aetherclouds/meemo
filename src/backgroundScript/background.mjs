@@ -1,8 +1,9 @@
-import { loadOptions, messageAllTabs, sortObjectArrayByKey } from "../util"
-import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IS_DEBUG } from "../const"
+import { isChrome, loadOptions, messageAllTabs, sortObjectArrayByKey } from "../util"
+import { BROWSER, DEFAULT_OPTIONS, EXTENSION_ALIAS, IN_DEV } from "../const"
 import { ankiRequest } from "../ankiConnectUtil"
-// structure:
-/* {
+// LanguageData structure:
+/* 
+{
   LANGUAGE: {
     genders: {
       m: MASCULINE,
@@ -21,14 +22,18 @@ import { ankiRequest } from "../ankiConnectUtil"
 (async () => {
 var languageData = {}
 
+console.log('alr lets test something', chrome.storage.sync.get('asd'))
+
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('setting', DEFAULT_OPTIONS)
   chrome.storage.sync.set({options: DEFAULT_OPTIONS})
   // redirect to options on install
-  chrome.tabs.create({
-    url: 'chrome://extensions/?options='+chrome.runtime.id,
-    active: true,
-  })
+  // TODO: make options page look better on firefox so that I can do this without it being embarrassing
+  if (isChrome() && !IN_DEV) {
+    chrome.tabs.create({
+      url: 'chrome://extensions/?options='+chrome.runtime.id,
+      active: true,
+    })
+  }
 })
 
 let options = DEFAULT_OPTIONS
@@ -61,7 +66,7 @@ function updateLanguageDict(languageData, selectedLanguages) {
     languageData[language].dict = {}
 
     // for each language, read its corresponding csv file for `WORD, GENDER` entries
-    const filePath = chrome.runtime.getURL('data/dicts/' + language + ".csv")
+    const filePath = chrome.runtime.getURL('contents/data/dicts/' + language + ".csv")
     const response = await fetch(filePath)
     if (response.ok) {
       let text = await response.text()
@@ -80,7 +85,7 @@ function updateLanguageDict(languageData, selectedLanguages) {
 
 // load genders, eg. {de: {f: 'feminin', . . .}, . . .}
 async function updateLanguageGenders(languageData, selectedLanguages) {
-  const filePath = chrome.runtime.getURL('data/genders.csv')
+  const filePath = chrome.runtime.getURL('contents/data/genders.csv')
   const response = await fetch(filePath)
   if (response.ok) {
     let text = await response.text()
@@ -98,7 +103,7 @@ async function updateLanguageGenders(languageData, selectedLanguages) {
 
 function updateLanguageFlagURLs(languageData, selectedLanguages) {
   selectedLanguages.map( (language) => {
-    languageData[language].flagURL = chrome.runtime.getURL(`data/flags/${language}.svg`)
+    languageData[language].flagURL = chrome.runtime.getURL(`contents/data/flags/${language}.svg`)
   })
 }
 

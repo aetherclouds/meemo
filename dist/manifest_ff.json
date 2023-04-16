@@ -2,7 +2,7 @@
   "name": "meemo",
   "description": "A couple versatile tools aimed at language learners!",
   "version": "0.0.0.1",
-  "manifest_version": 3,
+  "manifest_version": 2,
 
   "icons": {
     "48": "contents/icons/ext-icon48.png",
@@ -17,22 +17,26 @@
     "open_in_tab": false
   },
   "background": {
-    "service_worker": "contents/js/backgroundScript/background.js",
+    "scripts": ["contents/js/backgroundScript/background.js"],
     "type": "module"
   },
+
   "content_scripts": [
     {
     "all_frames": false,
-    "js": [ "contents/js/contentScript/content.js" ],
+    "js": [ "contents/js/contentScript/content.js", "contents/js/Content.js"],
     "match_about_blank": true,
     "matches": [ "http://*/*", "https://*/*", "ftp://*/*", "file:///*" ],
     "run_at": "document_end"
     }
   ],
-  "web_accessible_resources": [
-    {
-      "resources": [  "contents/data/flags/*.svg", "contents/data/dicts/*.csv", "contents/icons/*", "contents/js/**/*.js", "contents/js/*.js", "contents/css/*.css" ],
-      "matches": [ "<all_urls>"]
+  "web_accessible_resources": [ 
+    [  "contents/data/flags/*.svg", "contents/data/dicts/*.csv", "contents/icons/*", "contents/js/**/*.js", "contents/js/*.js", "contents/css/*.css"]
+  ],
+  
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "azethercloudschrm@gmail.com"
     }
-  ] 
+  }  
 }

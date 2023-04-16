@@ -1,4 +1,10 @@
-export const IS_DEBUG = false
+import { isChrome } from "./util"
+
+// TODO: pass an arg through dev script that enables this 
+export const IN_DEV = true
+
+// export const BROWSER = getBrowser()
+export const IS_CHROME = isChrome()
 
 export const EXTENSION_ALIAS = 'meemo'
 
