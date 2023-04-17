@@ -1,10 +1,9 @@
 # meemo
 ## Intro
-Meemo is an extension aimed especially at language learners, and especially those who use Anki. 
-- Get the gender of nouns by hovering over them
+- Get the gender of nouns in real-time by hovering over them
 - Select pieces of text & save them straight into Anki, or
-- Use key combinations (ALT + A) to open the popup
-- Fill the fields and use the tag `$replace$` which will then get replaced by the selected text
+- Use key combinations (ALT + A) to save arbitrary text into Anki
+- Fill the fields and use the tag `$replace$` which will then get replaced by the desired text
 
 ## Credits
 - Country flag SVGs: [yammadev/flag-icons](https://github.com/yammadev/flag-icons)
