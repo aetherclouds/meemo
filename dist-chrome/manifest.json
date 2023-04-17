@@ -1,0 +1,69 @@
+{
+  "name": "meemo",
+  "description": "A couple versatile tools aimed at language learners!",
+  "version": "0.0.0.1",
+  "manifest_version": 3,
+  "icons": {
+    "48": "assets/icons/ext-icon48.png",
+    "128": "assets/icons/ext-icon128.png"
+  },
+  "action": {},
+  "permissions": [
+    "storage"
+  ],
+  "options_ui": {
+    "page": "src/html/options.html",
+    "open_in_tab": false
+  },
+  "background": {
+    "service_worker": "serviceWorker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "src/js/contentScript/content.js"
+      ],
+      "match_about_blank": true,
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "ftp://*/*",
+        "file:///*"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/data/flags/*.svg",
+        "assets/data/dicts/*.csv",
+        "assets/icons/*",
+        "assets/**/*.js",
+        "assets/*.js",
+        "assets/*.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    },
+    {
+      "resources": [
+        "assets/src/js/contentScript/content.js",
+        "assets/const.js",
+        "assets/Content.js",
+        "assets/svelteTransition.js",
+        "assets/ankiConnectUtil.js",
+        "assets/Content.css"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "ftp://*/*",
+        "file:///*"
+      ],
+      "use_dynamic_url": true
+    }
+  ]
+}
