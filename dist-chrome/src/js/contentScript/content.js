@@ -1,1 +1,0 @@
-(async()=>{await import(chrome.runtime.getURL("assets/src/js/contentScript/content.js"))})();

@@ -1,2 +1,0 @@
-(async()=>{const{EXTENSION_ALIAS:n}=await import("../../../const.js").then(s=>s._),a=(await import("../../../Content.js")).default,t=document.createElement("div");t.id=n+"-root";const o=t.attachShadow({mode:"open"}),e=document.createElement("link");e.rel="stylesheet",e.href=chrome.runtime.getURL("assets/Content.css"),e.classList.add("darkreader"),o.appendChild(e),new a({target:o,props:{rootNode:t,parentDocument:document}})})();
-//# sourceMappingURL=content.js.map

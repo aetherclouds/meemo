@@ -1,1 +1,0 @@
-import "/assets/src/js/backgroundScript/background.js";
