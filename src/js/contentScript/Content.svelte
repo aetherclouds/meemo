@@ -13,6 +13,7 @@
     let pageWidth
     let hoverNode, hoverContentNode
     
+    let hoverContent = []
     let isHoverOn = false
     let hoverX = 0,
         hoverY = 0,
@@ -23,12 +24,10 @@
     let staticHoverNode
     
     let options = DEFAULT_OPTIONS
-    // try load from sync
+    // try loading options from sync
     browserStorageSync.get('options').then(result => {
         options = result.options || DEFAULT_OPTIONS
     })
-    
-    let hoverContent = []
 
     onMount(() => {
         readyParent()
@@ -39,26 +38,26 @@
         hoverNode.style.top = hoverY + 'px'
         window.requestAnimationFrame(hoverAnimateLoop)
     }
-    ''
+
     function readyParent() {
-        // we'll assume this is always constant cuz it probably is + saves on performance
+        // we'll assume this is always constant because it probably (debatable) is + saves on performance
         pageWidth = Util.getPageWidth()
     
         // check if extension is globally enabled 
         chrome.runtime.sendMessage({type: 'isExtensionOn'}, response => {
             console.log(EXTENSION_ALIAS, ': checking: isExtensionOn?',response.isExtensionOn)
-            // check if isExtensionOn is already on so we don't run this function twice
+            // check if isExtensionOn is already on so we don't run enableExtension twice
             if (response.isExtensionOn && !isExtensionOn) {
                 enableExtension() 
             }
         })
     
-        setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0.
+        setTimeout(() => { // wait a bit for 1st trigger of onmousemove so that we have mouseX and mouseY being non-0
             hoverAnimateLoop()
         }, 50)
     }
     
-    // LISTEN TO MESSAGES FROM BACKGROUND SCRIPT
+    // listen to messages from background script
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
             switch (request.type) {
@@ -77,7 +76,7 @@
         }
     )
     
-    // ENABLE/DISABLE EXTENSION
+    // enable/disable extension
     function enableExtension() {	
         isExtensionOn = true
         parentDocument.addEventListener('mousemove', handleMouseMove)
@@ -100,7 +99,7 @@
         }
     }
     
-    // SHOW/HIDE HOVER 
+    // show/hide hover
     function showHover(data) {
         hoverContent = data
         isHoverOn = true
@@ -116,11 +115,8 @@
     }
     
     function handleSelectionChange(e) {    
-        // https://stackoverflow.com/a/5379408
-        // https://stackoverflow.com/a/52157976 - this one would be cool because this listener will update on EVERY CHARACTER SELECTED instead of just mouseup. so maybe we could animate the hover with that.
-    
-        // https://stackoverflow.com/a/17569535 MODIFIED
-        // get selection 
+        // adaptation of https://stackoverflow.com/a/17569535 
+        // get selection (doh)
         let selection = parentDocument.getSelection()
         if (!selection.isCollapsed) {
             let selectionRange = selection.getRangeAt(0)
@@ -159,19 +155,15 @@
     
         if (!hoverNode) return
         if (isMakingSelection) return
-    
         
         let range
-        // https://gist.github.com/unicornist/ac997a15bc3211ba1235
+        // https://gist.github.com/unicornist/ac997a15bc3211ba1235 - extends compatibility for Firefox
         if (parentDocument.caretRangeFromPoint) { // standard (WebKit)
             range = parentDocument.caretRangeFromPoint(e.clientX, e.clientY);
         } else if (e.rangeParent) { // Mozilla
             range = parentDocument.createRange();
             range.setStart(e.rangeParent, e.rangeOffset);
         }
-        // const range = parentDocument.caretRangeFromPoint(e.clientX, e.clientY)
-
-        console.log('range', range)
         if (!range) return
         const node = range.startContainer
         const nodeContent = node.nodeValue
@@ -229,6 +221,7 @@
 
     if (document.activeElement.tagName === 'INPUT') return
 
+    // shortcut for opening popup
     if (((e.key === 'a' || e.key === 'A') && e.altKey && !e.metaKey && !e.shiftKey) ) {
         new Popup({
             target: staticHoverNode,

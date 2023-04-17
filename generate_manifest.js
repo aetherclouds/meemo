@@ -1,10 +1,12 @@
 export default function generateExtensionManifest(targetBrowser) {
     const isFirefox = (targetBrowser == 'firefox')
     return {
-        "name": "meemo",
-        "description": "A couple versatile tools aimed at language learners!",
-        "version": "0.0.0.1",
         "manifest_version": isFirefox ? 2 : 3,
+
+        "name": "meemo",
+        "description": "A couple versatile tools aimed at helping language learners!",
+        "default_locale": "en",
+        "version": "0.0.0.1",
         
         "icons": {
             "48": "assets/icons/ext-icon48.png",

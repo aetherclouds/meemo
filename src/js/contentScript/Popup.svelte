@@ -3,7 +3,7 @@
     import {addNote, AnkiConnectionError, AnkiResponseError, getDeckNames, getModelFieldNames, getModelNames} from '../ankiConnectUtil'
     import { EXTENSION_ALIAS, REPLACEMENT_STRING } from "../const";
     import { horizontalSlideDisconsiderBorder } from "../svelteTransition";
-    import { compareArrays, escapeHtml } from "../util";
+    import { escapeHtml } from "../util";
 
     export let staticHoverNode
     export let parentDocument = document
@@ -264,9 +264,6 @@
                 },obj)
             }
         }, {})
-        // THIS IS A TEMPORARY REPLACEMENT UNTIL ABOVE IS IMPLEMENTED
-        // cardModelFieldsData = fields.reduce((obj, fieldName) => (obj[fieldName]={value: '', shouldSave: false},obj), {})
-
     }
 
     function replaceWithCoolSpan(content) {

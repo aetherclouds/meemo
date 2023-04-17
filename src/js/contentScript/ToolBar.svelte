@@ -5,7 +5,7 @@
     export let staticHoverNode
     export let parentDocument
     export let selectionText
-    export let hideToolbar
+    export let hideToolbarCallback
     export let options
     let toolbarNode
     let popup
@@ -28,7 +28,7 @@
 
     function handleClickAnki() {
         mountPopup()
-        hideToolbar()
+        hideToolbarCallback()
     }
 </script>
 

@@ -17,11 +17,11 @@
 - Find datasets for more languages (esp. Portuguese and Spanish)
 
 
-## Contributing
+## Contributing/builidng
 If you dare to contribute:
-- `npm install` 
+- `npm install` (node ^18.12.1 should be fine)
 - `npm run dev` (works for chrome only)
 
 to build:
 - `npm run build:ffox` or `npm run build:chrm`
-- Paste contents of `assets` into `dist-{BROWSER}/assets` when building (I haven't automated it)
+- Paste contents of `assets` into `dist-{BROWSER}/assets` (I haven't automated it)
