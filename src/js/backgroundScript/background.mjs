@@ -102,7 +102,7 @@ async function updateLanguageGenders(languageData, selectedLanguages) {
 
 function updateLanguageFlagURLs(languageData, selectedLanguages) {
   selectedLanguages.map( (language) => {
-    languageData[language].flagURL = chrome.runtime.getURL(`assets/data/flags/${language}.svg`)
+    languageData[language].flagURL = chrome.runtime.getURL(`assets/flags/${language.toUpperCase()}.svg`)
   })
 }
 

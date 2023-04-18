@@ -162,7 +162,7 @@
 					>
 							<!-- TODO: stop this hackery and use set fixed size -->
 							<!-- added these just so we get the right sizing -->
-							<img src="/assets/data/flags/PT.svg" class="h-4.5 block mr-1 invisible"/>
+							<img src="/assets/flags/PT.svg" class="h-4.5 block mr-1 invisible"/>
 							<p class="invisible">de</p>
 							<div class="absolute h-full w-full left-0 top-0 ">
 
@@ -191,7 +191,7 @@
 					on:click={() => handleRemoveLanguage(language)}
 					transition:horizontalSlideDisconsiderBorder={{axis: 'x', duration: 200}}
 					>
-						<img src="/assets/data/flags/{language.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
+						<img src="/assets/flags/{language.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
 						<p class="align-middle my-auto lowercase">{language}</p>
 					</button>
 					{/if}

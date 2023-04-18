@@ -5,7 +5,6 @@ export default function generateExtensionManifest(targetBrowser) {
 
         "name": "meemo",
         "description": "A couple versatile tools aimed at helping language learners!",
-        "default_locale": "en",
         "version": "0.0.0.1",
         
         "icons": {
@@ -38,7 +37,7 @@ export default function generateExtensionManifest(targetBrowser) {
         ],
         "web_accessible_resources": isFirefox ? [
 
-            "assets/data/flags/*.svg", 
+            "assets/flags/*.svg", 
             "assets/data/dicts/*.csv", 
             "assets/icons/*", 
             "assets/**/*.js", 
@@ -46,7 +45,7 @@ export default function generateExtensionManifest(targetBrowser) {
             "assets/*.css"
         ] : [{
             "resources": [  
-                "assets/data/flags/*.svg", 
+                "assets/flags/*.svg", 
                 "assets/data/dicts/*.csv", 
                 "assets/icons/*", 
                 "assets/**/*.js", 

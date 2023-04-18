@@ -1,10 +1,10 @@
 <img width="834" alt="meemo-banner" src="https://user-images.githubusercontent.com/60078934/232831494-3067992d-ff79-467f-846a-56175173406d.png">
 
 ## Intro
-- Get the gender of nouns in real-time by hovering over them
 - Select pieces of text & save them straight into Anki, or
 - Use key combinations (ALT + A) to save arbitrary text into Anki
 - Fill the fields and use the tag `$replace$` which will then get replaced by the desired text
+- Get the gender of nouns in real-time by hovering over them
 
 ## Credits
 - Country flag SVGs: [yammadev/flag-icons](https://github.com/yammadev/flag-icons)
