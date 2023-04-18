@@ -5,7 +5,7 @@ export default function generateExtensionManifest(targetBrowser) {
 
         "name": "meemo",
         "description": "A couple versatile tools aimed at helping language learners!",
-        "version": "0.0.0.1",
+        "version": "0.0.0.2",
         
         "icons": {
             "48": "assets/icons/ext-icon48.png",
