@@ -1,4 +1,4 @@
-# meemo
+![meemo-banner](https://user-images.githubusercontent.com/60078934/232831226-c4243a87-617e-4e04-93a6-c2101989473d.png)
 ## Intro
 - Get the gender of nouns in real-time by hovering over them
 - Select pieces of text & save them straight into Anki, or
