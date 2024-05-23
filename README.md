@@ -17,12 +17,10 @@
 - Option to add key combination for popup & possibly other actions
 - Find datasets for more languages (esp. Portuguese and Spanish)
 
-
-## Contributing/builidng
+## Contributing
 If you dare to contribute:
-- `npm install` (node ^18.12.1 should be fine)
-- `npm run dev` (works for chrome only)
+- `pnpm install`
+- `pnpm run dev:<firefox|chrome>`
 
-to build:
-- `npm run build:ffox` or `npm run build:chrm`
-- Paste contents of `assets` into `dist-{BROWSER}/assets` (I haven't automated it)
+## Building
+`pnpm run build:<firefox|chrome>`

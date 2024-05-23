@@ -50,7 +50,6 @@ export const AVAILABLE_LANGUAGES = [
 ]
 
 export const HTML_ESCAPE_LIST = {
-    // '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
 }

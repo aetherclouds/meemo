@@ -84,7 +84,7 @@ export async function addNote(deckName, modelName, fields) {
       'tags': ['fromMeemo!'],
       "options": {
         "allowDuplicate": true,
-    },
+    } ,
     }
   })
 }

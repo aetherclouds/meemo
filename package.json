@@ -1,26 +1,26 @@
 {
   "name": "vite-project",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite build --watch",
-    "build:chrm": "vite build --config vite.config_chrm.js",
-    "build:ffox": "vite build --config vite.config_ffox.js",
+    "dev:chrm": "export TARGET_BROWSER=chrome; vite serve",
+    "dev:ffox": "export TARGET_BROWSER=firefox; vite serve",
+    "build:chrm": "export TARGET_BROWSER=chrome; vite build",
+    "build:ffox": "export TARGET_BROWSER=firefox; vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^2.0.3",
-    "@types/chrome": "^0.0.225",
-    "svelte": "^3.55.1",
-    "vite": "^4.2.0",
-    "postcss": "^8.4.14",
-    "postcss-load-config": "^4.0.1",
-    "svelte-preprocess": "^4.10.7",
-    "autoprefixer": "^10.4.7",
-    "tailwindcss": "^3.1.5"
+    "@sveltejs/vite-plugin-svelte": "^3.1.0",
+    "@types/chrome": "^0.0.268",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "postcss-load-config": "^5.1.0",
+    "svelte": "^4.2.17",
+    "svelte-preprocess": "^5.1.4",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.11"
   },
   "dependencies": {
-    "@samrum/vite-plugin-web-extension": "^4.1.0"
+    "@samrum/vite-plugin-web-extension": "^5.1.0"
   }
 }

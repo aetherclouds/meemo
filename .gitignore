@@ -27,5 +27,4 @@ dist.crx
 dist.pem
 
 # build folders
-dist-chrome
-dist-firefox
+dist-*

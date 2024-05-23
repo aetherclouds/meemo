@@ -1,3 +1,4 @@
+// https://github.com/samrum/vite-plugin-web-extension?tab=readme-ov-file#usage
 export default function generateExtensionManifest(targetBrowser) {
     const isFirefox = (targetBrowser == 'firefox')
     return {
@@ -5,7 +6,7 @@ export default function generateExtensionManifest(targetBrowser) {
 
         "name": "meemo",
         "description": "A couple versatile tools aimed at helping language learners!",
-        "version": "0.0.0.2",
+        "version": process.env.npm_package_version,
         
         "icons": {
             "48": "assets/icons/ext-icon48.png",
