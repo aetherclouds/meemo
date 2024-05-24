@@ -26,17 +26,12 @@ const sharedManifest = {
   permissions: [
     "storage" // to save settings
   ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "azethercloudschrm@gmail.com"
-    }
-  }
 };
 
 const resources = [
-  "data/**/*",
-  "icons/**/*",
-  "flags/**/*",
+  "data/**",
+  "icons/**",
+  "flags/**",
 ]
 
 const browserAction = {
@@ -62,6 +57,11 @@ const ManifestV2 = {
   },
   web_accessible_resources: resources,
   permissions: [...sharedManifest.permissions, "*://*/*"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "azethercloudschrm@gmail.com"
+    }
+  }
 };
 
 const ManifestV3 = {
@@ -72,7 +72,10 @@ const ManifestV3 = {
     service_worker: "src/entries/background/main.js",
   },
   host_permissions: ["*://*/*"],
-  web_accessible_resources: [{resources}],
+  web_accessible_resources: [{
+    resources: resources, 
+    matches: ["*://*/*"],
+  }],
 };
 
 export function getManifest(manifestVersion) {

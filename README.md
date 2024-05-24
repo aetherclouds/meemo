@@ -23,9 +23,7 @@ Meemo uses `pnpm`, but you may use any other.
 2. Add extension as "temporary extension" under Chromium-based  browsers or Firefox
 
 ### Notes
-1. `pnpm run dev:ffox` yields:
-> TypeError: error loading dynamically imported module: http://localhost:port/@vite/client
-so I haven't used that.
+1. `pnpm run dev:ffox` yields `TypeError: error loading dynamically imported module: http://localhost:port/@vite/client`, so I haven't used that.
 
 2. > Hot Module Reloading is used to load changes inline without requiring extension rebuilds and extension/page reloads Currently only works in Chromium based browsers.
 I mainly use Firefox so I disabled this.

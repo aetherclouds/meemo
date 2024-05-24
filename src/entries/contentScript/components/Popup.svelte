@@ -174,8 +174,6 @@
         initialDragOffsetY
     function handleDragMouseDown(e) {
         const popupRect = popupNode.getBoundingClientRect()
-        // offset should be negative because the popup's top-left is always a negative amount offset
-        // from the cursor. this is just calculating that offset based on where the cursor is on the popup
         initialDragOffsetX = - e.clientX + popupRect.left
         initialDragOffsetY = - e.clientY + popupRect.top 
         parentDocument.addEventListener('mousemove', handleDragMouseMove)

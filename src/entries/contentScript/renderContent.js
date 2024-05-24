@@ -18,7 +18,7 @@ export default async function renderContent(
     cssPaths.forEach((cssPath) => {
       const styleEl = document.createElement("link");
       styleEl.setAttribute("rel", "stylesheet");
-      styleEl.setAttribute("href", browser.runtime.getURL(cssPath));
+      styleEl.setAttribute("href", chrome.runtime.getURL(cssPath));
       shadowRoot.appendChild(styleEl);
     });
   // }
