@@ -4,6 +4,7 @@
   "displayName": "Meemo",
   "author": "aetherclouds",
   "description": "Language learning swiss knife",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build:ffox": "export TARGET_BROWSER=firefox; vite build",
