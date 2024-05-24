@@ -1,8 +1,8 @@
 <!-- 
  -->
 <script>		
-	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS, OPTION_ORDER, browserStorageSync} from '../const'
-	import {horizontalSlideDisconsiderBorder} from '../svelteTransition'
+	import {AVAILABLE_LANGUAGES, DEFAULT_OPTIONS, OPTION_ORDER, browserStorageSync} from '~/lib/const'
+	import {horizontalSlideDisconsiderBorder} from '~/lib/svelteTransition'
 
 	let options = DEFAULT_OPTIONS
 	let availableLanguages = AVAILABLE_LANGUAGES
@@ -93,9 +93,8 @@
 	<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
 </svelte:head>
 
-<!-- <Popup></Popup> -->
-<main class="h-full">
-	<div class="w-md mx-6 mb-6">
+<main class="h-full grid justify-center align-center">
+	<div class="w-md max-w-screen-md mx-6 mb-6">
 		<div class="flex w-full my-2 relative">
 			<h1 class="font-extrabold text-3xl px-4 text-center text-zinc-900">OPTIONS</h1>
 			<!-- cool technique i learned: make this absolute -->
@@ -108,7 +107,7 @@
 					syncOptions()
 					playOutlineEffect('save')
 				}}>
-					<img src="/assets/icons/save.svg" class="h-full" alt="save icon">
+					<img src="/icons/save.svg" class="h-full" alt="save icon">
 				</button>
 				<button 
 				class="bg-zinc-50 border-zinc-900 border-[1.5px] border-l-0 rounded-r py-1 px-1 h-full
@@ -118,7 +117,7 @@
 					options = structuredClone(DEFAULT_OPTIONS)
 					playOutlineEffect('reset')
 				}}>
-					<img src="/assets/icons/reset.svg" class="h-full" alt="reset icon">
+					<img src="/icons/reset.svg" class="h-full" alt="reset icon">
 				</button>
 			</div>
 		</div>
@@ -191,7 +190,7 @@
 					on:click={() => handleRemoveLanguage(language)}
 					transition:horizontalSlideDisconsiderBorder={{axis: 'x', duration: 200}}
 					>
-						<img src="/assets/flags/{language.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
+						<img src="/flags/{language.toUpperCase()}.svg" class="rounded w-full h-4.5 block mr-0.5"/>
 						<p class="align-middle my-auto lowercase">{language}</p>
 					</button>
 					{/if}

@@ -1,21 +1,16 @@
 import { getBrowserAction, getBrowserStorageSync, isChrome } from "./util"
 
-// TODO: pass an arg through dev script that enables this 
-export const IN_DEV = true
-
 // export const BROWSER = getBrowser()
 export const IS_CHROME = isChrome()
 
-export const EXTENSION_ALIAS = 'meemo'
-
 export const DEFAULT_OPTIONS = {
     selectedLanguages: {
-        description: 'The languages that the selected word will be matched against',
+        description: 'Languages the hovered word will be matched against',
         type: 'languageSelection',
         value: ['de']
     },
     shouldStartEnabled: {
-        description: 'Whether the extension should be enabled by default upon opening the browser',
+        description: 'Enable extension on browser startup',
         type: 'bool',
         value: true,
     },
@@ -25,17 +20,17 @@ export const DEFAULT_OPTIONS = {
         value: 1
     },
     distanceToMouse: {
-        description: 'Distance between from the hover utility to the cursor',
+        description: 'Distance between the hover utility and the cursor, in pixels',
         type: 'float',
         value: 8
     },
     shouldPopupBePinned: {
-        description: 'Whether popup should stay fixed to the screen rather than the page',
+        description: 'Whether the popup should pin to the screen rather than the page',
         type: 'bool',
         value: true,
     },
     useMotion: {
-        description: 'Play animations and transitions, such as when moving your cursor or spawning the popup (disabling this should help if your computer is a literal potato)',
+        description: 'Play animations and transitions, disable for faster interaction',
         type: 'bool',
         value: true,
     }

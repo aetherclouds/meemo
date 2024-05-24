@@ -14,7 +14,6 @@ export class AnkiResponseError extends Error {
 
 export async function ankiRequestThroughBg(action, params={}) {
   const response = (await chrome.runtime.sendMessage({type: 'runAnkiRequest', data: {action, params}})).response
-  // console.log('receiving anki response:', response)
   if (response.error) {
     // console.error(response.error)
     switch (response.error) {
@@ -43,7 +42,6 @@ export async function ankiRequest(action, params={}, version=6) {
       throw new AnkiResponseError()
     } else {
       const response = await promisedResponse.json()
-      // console.log('unprocessed response:',response)
       if (response.result === null) {
         throw new AnkiResponseError(response.error)
       }
@@ -58,12 +56,6 @@ export async function ankiRequest(action, params={}, version=6) {
   })
 }
 
-// here's what we gotta do:
-// 1: get models
-// 2: get decks
-// - display models & decks for selection
-// 3: add note
-
 export async function getModelNames() {
   return ankiRequestThroughBg('modelNames')
 }
@@ -76,6 +68,7 @@ export async function getModelFieldNames(modelName) {
 }
 
 export async function addNote(deckName, modelName, fields) {
+  // note == card
   return ankiRequestThroughBg('addNote', {
     'note': {
       'deckName': deckName,
@@ -89,8 +82,6 @@ export async function addNote(deckName, modelName, fields) {
   })
 }
 
-export async function test() {
-  const response = await ankiRequestThroughBg('modelNames',)
-  console.log(await getDeckNames())
-    console.log(response)
+export async function testConnection() {
+  await getDeckNames()
 }

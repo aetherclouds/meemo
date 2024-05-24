@@ -1,4 +1,4 @@
-// CTRL-C CTRL-V FROM: https://svelte.dev/repl/6d5239f09b0b4dc6aafeb70606a0fe94?version=3.46.4
+// https://svelte.dev/repl/6d5239f09b0b4dc6aafeb70606a0fe94?version=3.46.4
 
 import { cubicOut } from 'svelte/easing'
 

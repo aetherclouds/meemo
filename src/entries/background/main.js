@@ -1,49 +1,67 @@
-import { messageAllTabs, sortObjectArrayByKey } from "../util"
-import { DEFAULT_OPTIONS, EXTENSION_ALIAS, IN_DEV, IS_CHROME, browserAction, browserStorageSync } from "../const"
-import { ankiRequest } from "../ankiConnectUtil"
-// LanguageData structure:
-/* 
+import { messageAllTabs, sortObjectArrayByKey } from '~/lib/util'
+import { DEFAULT_OPTIONS, IS_CHROME, browserAction, browserStorageSync } from '~/lib/const'
+import { ankiRequest, testConnection } from "~/lib/ankiConnectUtil"
+
+
+/* LanguageData structure:
 {
-  LANGUAGE: {
+  <LANGUAGE1>: {
     genders: {
-      m: MASCULINE,
-      f: FEMININE,
-      n: NEUTRAL
+      m: <MASCULINE_NAME>,
+      f: <FEMININE_NAME>,
+      n: <NEUTRAL_NAME>export const IS_CHROME = isChrome()
     },
-    flagURL: FLAGURL, 
+    flagURL: <FLAG_URL>, 
     dict: {
-      WORD: GENDER, 
+      <WORD1>: <GENDER1>, 
+      <WORD2>: <GENDER2>, 
       . . .
     },
-  }
+  },
+  <LANGUAGE2>: . . .
+  . . .
 }
 */
+let languageData = {}
+let options = DEFAULT_OPTIONS
+let isExtensionOn = options.shouldStartEnabled.value
 
-(async () => {
-var languageData = {}
 
-console.log('isOnChrome?', IS_CHROME)
+function updateBadgeText() {
+    browserAction.setBadgeText({text: isExtensionOn ? 'On' : ''})
+}
+
+// NOTE: never do this (
+function genderCSVToObj(CSVString) {
+  let output = {}
+  const lines = CSVString.split('\n')
+  for (let i=1; i<lines.length; i++) { // skip header
+      const contents = lines[i].split(',')
+      output[contents[0]] = {
+        'm': contents[1],
+        'f': contents[2],
+        'n': contents[3].trim()
+      }
+  }
+  return output
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({options: DEFAULT_OPTIONS})
   // redirect to options on install
-  // TODO: make options page look better on firefox so that I can do this without it being embarrassing
-  if (IS_CHROME && !IN_DEV) {
+  // if (IS_CHROME && !IN_DEV) {
     chrome.tabs.create({
       url: 'chrome://extensions/?options='+chrome.runtime.id,
       active: true,
     })
-  }
+  // }
 })
 
-let options = DEFAULT_OPTIONS
+
 // try load from sync
 browserStorageSync.get('options').then(result => {
     options = result.options || DEFAULT_OPTIONS
 })
-
-var isExtensionOn = options.shouldStartEnabled.value
-updateBadgeText()
-initLanguages()
 
 function initLanguages() {
   let selectedLanguages = options.selectedLanguages.value
@@ -58,33 +76,32 @@ function initLanguages() {
 
 }
 
-// load word dictionary into memory
+// load or update word dictionary into memory
 function updateLanguageDict(languageData, selectedLanguages) {
   selectedLanguages.map(async (language) => {
-    // initialize map
     languageData[language].dict = {}
 
     // for each language, read its corresponding csv file for `WORD, GENDER` entries
-    const filePath = chrome.runtime.getURL('assets/data/dicts/' + language + ".csv")
+    const filePath = chrome.runtime.getURL('data/dicts/' + language + ".csv")
     const response = await fetch(filePath)
     if (response.ok) {
-      let text = await response.text()
-      text.split('\n').map(line => {
+      const csv = await response.text()
+      csv.split('\n').map(line => {
         const [word, gender] = line.split(',')
         if (word && gender) {
           languageData[language].dict[word] = gender.trim()
         }
       }) 
-      console.log(language, 'language dict is loaded with', Object.keys(languageData[language].dict).length, 'entries')
+      console.log(language, 'language dict loaded with', Object.keys(languageData[language].dict).length, 'entries')
     } else {
-      console.error(EXTENSION_ALIAS, ': unable to load dict for ' + language)
+      console.error('unable to load dict for ', language)
     }
   })
 }
 
-// load genders, eg. {de: {f: 'feminin', . . .}, . . .}
-async function updateLanguageGenders(languageData, selectedLanguages) {
-  const filePath = chrome.runtime.getURL('assets/data/genders.csv')
+// load or update all language genders. eg. {de: {f: 'feminin', . . .}, . . .}
+async function updateLanguageGenders(languageData) {
+  const filePath = chrome.runtime.getURL('data/genders.csv')
   const response = await fetch(filePath)
   if (response.ok) {
     let text = await response.text()
@@ -102,9 +119,14 @@ async function updateLanguageGenders(languageData, selectedLanguages) {
 
 function updateLanguageFlagURLs(languageData, selectedLanguages) {
   selectedLanguages.map( (language) => {
-    languageData[language].flagURL = chrome.runtime.getURL(`assets/flags/${language.toUpperCase()}.svg`)
+    languageData[language].flagURL = chrome.runtime.getURL(`flags/${language.toUpperCase()}.svg`)
   })
 }
+
+
+browserAction.setBadgeBackgroundColor({
+  color: [245, 30, 30, 255]
+});
 
 // listen to tab events
 chrome.runtime.onMessage.addListener(
@@ -145,46 +167,13 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-// TODO: pay attention to when this (note from the future: never leave a comment unfinished, now idk what this was about)
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status == 'complete') {
-  }
-})
-
-
-browserAction.setBadgeBackgroundColor({
-  color: [245, 30, 30, 255]
-});
 // listen to click on extension icon
 browserAction.onClicked.addListener((tab) => {
   messageAllTabs({type: isExtensionOn ? 'disableExtension' : 'enableExtension'})
 
   isExtensionOn = !isExtensionOn
   updateBadgeText()
-  console.log(EXTENSION_ALIAS, ': toggling extension! now', isExtensionOn)
 });
 
-function updateBadgeText() {
-  if (isExtensionOn) {
-    browserAction.setBadgeText({text: 'On'})
-  } else {
-    browserAction.setBadgeText({text: ''})
-  }  
-}
-
-// yes i wrote my own parser, totally very fail-safe
-function genderCSVToObj(stringCSV) {
-  let output = {}
-  const lines = stringCSV.split('\n')
-  // we already know how the header is so let's just skip it by setting i to 1
-  for (let i=1; i<lines.length; i++) {
-      const contents = lines[i].split(',')
-      output[contents[0]] = {
-        'm': contents[1],
-        'f': contents[2],
-        'n': contents[3].trim()
-      }
-  }
-  return output
-}
-  })()
+updateBadgeText()
+initLanguages()

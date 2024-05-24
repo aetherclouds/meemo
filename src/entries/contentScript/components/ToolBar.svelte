@@ -33,7 +33,7 @@
 </script>
 
 <div class="panel" on:click={handleClickAnki} bind:this={toolbarNode}>
-    <img src={chrome.runtime.getURL('assets/icons/anki.png')} alt="Save 2 Anki" class="icon">
+    <img src={chrome.runtime.getURL('icons/anki.png')} alt="Save 2 Anki" class="icon">
 </div>
 <style>
 .icon {

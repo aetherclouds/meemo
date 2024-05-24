@@ -1,61 +1,40 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import webExtension from '@samrum/vite-plugin-web-extension';
-import generateExtensionManifest from './generate_manifest';
-
-const FOLDER_MAP = {
-  'content': 'contentScript',
-  'background': 'backgroundScript',
-  'options': 'optionsPage',
-} 
+import { defineConfig, loadEnv } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import webExtension from "@samrum/vite-plugin-web-extension";
+import { getManifest } from "./src/manifest.js";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode, isSsrBuild, isPreview}) => {
+export default defineConfig(({ mode }) => {
   const browser = process.env.TARGET_BROWSER
-    if (browser !== "chrome" 
+  if (browser !== "chrome" 
     && browser !== "firefox"
-  ) {console.error("provide a valid target browser as input."); process.exit(1)};
-  
+  ) {console.error("provide a valid TARGET_BROWSER environment variable."); process.exit(1)};
+  const manifest_version = browser === 'firefox' ? 2 : 3
+
   return {
     plugins: [
-      svelte({
-        configFile: './svelte.config.js'
-      }),
+      svelte(),
       webExtension({
-        manifest: generateExtensionManifest(browser),
+        manifest: getManifest(manifest_version),
       }),
-    ],
-    publicDir: "assets",
-    build: {
-      rollupOptions: {
-        // input: [
-        //   "src/contentScript/contentScript.js",
-        //   "src/optionsPage/options.mjs",
-        //   "src/backgroundScript/background.mjs",
-        // ],
-        output: {
-            // sourcemap: false,
-            // don't use this - we already have lib.fileName for that
-            entryFileNames: 'assets/[name].js',
-            chunkFileNames: 'assets/[name].js',
-            // mainly intended for css file(s)
-            assetFileNames: 'assets/[name].[ext]',
-        },
+    ], 
+    resolve: {
+      alias: {
+        "~": new URL("./src", import.meta.url).pathname,
       },
-      emptyOutDir: true,
-      outDir: `dist-${browser}`,
+    },
+    build: {
       sourcemap: mode === "development",
-      // lib: {
-      //   entry: {
-      //     content: "./src/contentScript/content.js",
-      //     options: "./src/optionsPage/options.mjs",
-      //     background: "./src/backgroundScript/background.mjs",
-      //   },
-      //   fileName: (_, entryName) => {
-
-      //     return `js/${FOLDER_MAP[entryName]}/${entryName}.js`;
-      //   },
-      //   formats: ["es"],
-      // },
-  }
-}})
+      outDir: `dist-${browser}`,
+      rollupOptions: {
+        output: {
+          // this is basically the default, except w/o hashes, so we don't have
+          // to reload the manifest on the browser
+          entryFileNames: `assets/[name].js`,
+          chunkFileNames: `assets/[name].js`,
+          assetFileNames: `assets/[name].[ext]`
+        }
+      } 
+    }
+  };
+});

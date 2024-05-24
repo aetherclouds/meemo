@@ -1,4 +1,4 @@
-import { DEFAULT_OPTIONS, HTML_ESCAPE_LIST, IS_CHROME, browserStorageSync } from "./const";
+import { HTML_ESCAPE_LIST, IS_CHROME } from "./const";
 
 // https://stackoverflow.com/a/1038781
 export function getPageWidth() {
@@ -45,10 +45,12 @@ export function sortObjectArrayByKey(_array, key) {
     return array
 }
 
-// IF YOU GET 
-// Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
-// THAT JUST MEANS the content script is inactive in that tab. nothing to worry about.
-// https://stackoverflow.com/a/68896301 send message to all tabs
+/* 
+IF YOU GET the error:
+`Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.`
+nothing to worry about - the content script is just inactive in that tab .
+*/
+// https://stackoverflow.com/a/68896301
 export function messageAllTabs(message) {
   chrome.tabs.query({}, (tabs) => tabs.forEach( tab => {
     chrome.tabs.sendMessage(tab.id, message)
@@ -62,16 +64,16 @@ export function escapeHtml(content) {
   return content
 }
 
-export function loadOptionsInto(optionVariable) {
-  let options = DEFAULT_OPTIONS
-  // try load from sync
-  browserStorageSync.get('options').then(result => {
-    options = result.options || DEFAULT_OPTIONS
-    optionVariable = options
-  })
-}
+// export function loadOptionsInto(optionVariable) {
+//   let options = DEFAULT_OPTIONS
+//   // try load from sync
+//   browserStorageSync.get('options').then(result => {
+//     options = result.options || DEFAULT_OPTIONS
+//     optionVariable = options
+//   })
+// }
 
-// ADAPTED FROM https://stackoverflow.com/a/14853974
+// https://stackoverflow.com/a/14853974
 export function compareArrays(arr1, arr2) {
   // if the other array is a falsy value, return
   if (!arr2)
@@ -83,7 +85,7 @@ export function compareArrays(arr1, arr2) {
   if (arr1.length != arr2.length)
       return false;
 
-  for (var i = 0, l=arr1.length; i < l; i++) {
+  for (let i = 0, l=arr1.length; i < l; i++) {
       // Check if we have nested arrays
       if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
           // recurse into the nested arrays
@@ -112,14 +114,12 @@ export function getBrowser() {
 }
 
 export function isChrome() {
-    if (typeof browser !== "undefined") {
-      return false
-    } 
-    return true
+    return (typeof browser === "undefined")
 }
 
+// POLYFILLS //
+
 export function getBrowserAction() {
-  console.log('testin', IS_CHROME, chrome, chrome.action)
   if (IS_CHROME) {
     return chrome.action
   } else {

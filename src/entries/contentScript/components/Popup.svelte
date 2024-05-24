@@ -1,9 +1,9 @@
 <script>
-    import { onMount } from "svelte/internal";
-    import {addNote, AnkiConnectionError, AnkiResponseError, getDeckNames, getModelFieldNames, getModelNames} from '../ankiConnectUtil'
-    import { EXTENSION_ALIAS, REPLACEMENT_STRING } from "../const";
-    import { horizontalSlideDisconsiderBorder } from "../svelteTransition";
-    import { escapeHtml } from "../util";
+    import { onMount } from 'svelte'
+    import { REPLACEMENT_STRING, browserStorageSync } from "~/lib/const";
+    import { escapeHtml } from "~/lib/util";
+    import {addNote, AnkiConnectionError, AnkiResponseError, getDeckNames, getModelFieldNames, getModelNames} from '~/lib/ankiConnectUtil'
+    import { horizontalSlideDisconsiderBorder } from "~/lib/svelteTransition";
 
     export let staticHoverNode
     export let parentDocument = document
@@ -80,7 +80,7 @@
 
     let secsUntilRetry = 0
     function handleAnkiError(error, callback) {
-        console.error(EXTENSION_ALIAS + ' :', error)
+        console.error('meemo:', error)
         switch (error.constructor) {
             case AnkiConnectionError:
             messageType = 'connection'
@@ -199,7 +199,7 @@
     }
 
     function handleDocumentMouseUp(e) {
-        if (e.target.id != EXTENSION_ALIAS+'-root') {
+        if (e.target.id != 'meemo-root') {
             if (highlightWarnClose) {
                 destroyPopup()
             } else {
@@ -231,23 +231,6 @@
     async function updateModelFields(modelName) {
         const fields = await getModelFieldNames(modelName)
 
-        /* THIS FUNCTION compares if field structures between selected model vs synced model are similar,
-         and only then replaces them with what's saved in sync. this is safer, however I think it's 
-         okay to replace matching field names even if they are different structures. therefore,
-         I'm not using this function anymore */
-        // if (compareArrays(Object.keys(savedSyncFields).sort(), fields.slice().sort())) {         
-        //     console.log('are similar')
-        //     cardModelFieldsData = fields.reduce((obj, field) => {
-        //         const savedFieldContent = savedSyncFields[field]
-        //         return (obj[field]={
-        //             value: savedFieldContent || '', 
-        //             shouldSave: savedFieldContent ? true : false,
-        //             displayHTML: replaceWithCoolSpan(savedFieldContent)
-        //         },obj)
-        //     }, {})
-        // } else {
-        //     cardModelFieldsData = fields.reduce((obj, field) => (obj[field]={value:'', shouldSave: false, displayHTML:''},obj), {})
-        // }
         cardModelFieldsData = fields.reduce((obj, field) => { 
             // check if there's a field with the same name in sync - then replace with synced value
             if(savedSyncFields[field]) {
@@ -375,7 +358,7 @@ style="--UIScale: {options.UIScale.value}"
                 {:else if messageType == 'response'}
                     There has been a response error. AnkiConnect is running but did not respond properly.
                 {:else if messageType == 'unknown'}
-                    There has been an uknown error. ¯\_(ツ)_/¯
+                    There has been an unknown error. ¯\_(ツ)_/¯
                 {:else if messageType == 'success'}
                     Successfully reconnected with Anki!
                 {/if}
@@ -430,7 +413,7 @@ style="--UIScale: {options.UIScale.value}"
                 {#each Object.entries(cardModelFieldsData) as [fieldTitle, fieldDetails]}
                     <div class="flex align-middle mb-0.5 items-center">
                         <label for={'field-'+fieldTitle} class="mr-2">{fieldTitle}</label>
-                        <small class="text-[0.6rem] text-zinc-400">{#if fieldDetails.shouldSave}This field will stay saved{/if}</small>
+                        <!-- <small class="text-[0.6rem] text-zinc-400">{#if fieldDetails.shouldSave}This field will stay saved{/if}</small> -->
                     </div>
                     <div class="relative w-full rounded mb-3" data-fieldName={fieldTitle} id={fieldTitle}>
                         <textarea rows="1" id='field-{fieldTitle}' on:input={handleFieldInput} bind:value={fieldDetails.value} data-fieldName={fieldTitle} class="peer bg-transparent w-full overflow-hidden resize-none break-all relative top-0 left-0 webkit-text-transparent px-1 border border-transparent appearance-none outline-none rounded-[0.3rem]"></textarea>
@@ -439,7 +422,7 @@ style="--UIScale: {options.UIScale.value}"
                     </div>
                 {/each}
                 <div class="opacity-0 block mb-0.5">&nbsp;</div>
-                <button type="submit" class="w-full rounded-[0.3rem] bg-zinc-500/20 border border-zinc-600 text-sm py-1 appearance-none outline-none enabled:hover:border-blue-400 enabled:hover:text-blue-400 focus:border-blue-400 focus:text-blue-400 shadow-none focus:shadow-inner disabled:opacity-80 disabled-border-zinc-600 transition-colors duration-100" disabled={!canSubmit || undefined}>Add that thing!</button>
+                <button type="submit" class="w-full rounded-[0.3rem] bg-zinc-500/20 border border-zinc-600 text-sm py-1 appearance-none outline-none enabled:hover:border-blue-400 enabled:hover:text-blue-400 focus:border-blue-400 focus:text-blue-400 shadow-none focus:shadow-inner disabled:opacity-80 disabled-border-zinc-600 transition-colors duration-100" disabled={!canSubmit || undefined}>Add!</button>
             </form>
         </div>
     </div>
