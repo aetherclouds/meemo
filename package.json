@@ -3,15 +3,15 @@
   "version": "0.0.2",
   "displayName": "Meemo",
   "author": "aetherclouds",
-  "description": "Language learning swiss knife",
+  "description": "Language learning swiss army knife",
   "license": "MIT",
   "type": "module",
+
   "scripts": {
     "build:ffox": "export TARGET_BROWSER=firefox; vite build",
     "build:chrm": "export TARGET_BROWSER=chrome; vite build",
     "watch:ffox": "export TARGET_BROWSER=firefox; vite build --watch --mode development",
     "watch:chrm": "export TARGET_BROWSER=chrome; vite build --watch --mode development",
-    "dev:ffox": "export TARGET_BROWSER=firefox; vite",
     "dev:chrm": "export TARGET_BROWSER=chrome; vite"
   },
   "devDependencies": {

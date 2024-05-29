@@ -28,7 +28,7 @@
     let messageType = ''
     let canSubmit = false
     let highlightWarnClose = false
-    let highlightSubmitSuccessful = false
+    let wasSubmitSuccessful = false
 
     const TRANSITION_DURATION_MS = 300
     
@@ -114,7 +114,7 @@
             obj
             ), {})
         const fieldsValuesReplaced = Object.keys(fieldsVaues).reduce((obj, fieldName) => (
-            obj[fieldName]=fieldsVaues[fieldName].replaceAll('$replace$', contentToSave),
+            obj[fieldName]=fieldsVaues[fieldName].replaceAll(REPLACEMENT_STRING, contentToSave),
             obj
             ), {})
 
@@ -130,9 +130,9 @@
         }    
         if (callbackResult) {
             // console.log('callback:', callbackResult)
-            highlightSubmitSuccessful = true
+            wasSubmitSuccessful = true
             setTimeout(() => {
-                highlightSubmitSuccessful = false
+                wasSubmitSuccessful = false
             }, 5000)
             // sync selections
             syncDeckAndModelChoices(formData.get('deckName'), formData.get('modelName'))
@@ -180,7 +180,7 @@
         parentDocument.addEventListener('mouseup', handleDragMouseUp)
         isPopupBeingDragged = true
         highlightWarnClose = false
-        highlightSubmitSuccessful = false
+        wasSubmitSuccessful = false
     }
     
     function handleDragMouseUp(e) {
@@ -302,7 +302,7 @@ style="--UIScale: {options.UIScale.value}"
         {isPopupBeingDragged  ? 
             'shadow-xl shadow-black/10'
             : 'shadow-sm ' 
-            +  ((highlightSubmitSuccessful || messageType=='success') ? 
+            +  ((wasSubmitSuccessful || messageType=='success') ? 
                 'shadow-green-400'
                 : (messageType ?
                     'shadow-red-400'
@@ -316,10 +316,10 @@ style="--UIScale: {options.UIScale.value}"
         : 'shadow-sm '
     }
     {messageType ? 
-        (messageType!='success') && !highlightSubmitSuccessful ? 
+        (messageType!='success') && !wasSubmitSuccessful ? 
             'border-red-400'
             : 'border-green-400' 
-        : (highlightSubmitSuccessful) ? 
+        : (wasSubmitSuccessful) ? 
             'border-green-400'
             : 'border-transparent'
     }
@@ -332,6 +332,7 @@ style="--UIScale: {options.UIScale.value}"
         hover:bg-zinc-500/20 transition-colors duration-100
         " on:mousedown={handleDragMouseDown} on:mouseup={handleDragMouseUp}>
             <div class="grid grid-rows-2 grid-cols-4 mx-auto w-max justify-center gap-x-1 gap-y-1 my-auto">
+                <!-- I'm so sorry -->
                 <div class="bg-zinc-500 rounded-full aspect-square w-[0.16rem] h-[0.16rem]"></div>
                 <div class="bg-zinc-500 rounded-full aspect-square w-[0.16rem] h-[0.16rem]"></div>
                 <div class="bg-zinc-500 rounded-full aspect-square w-[0.16rem] h-[0.16rem]"></div>
@@ -370,7 +371,7 @@ style="--UIScale: {options.UIScale.value}"
             <div class="text-xs text-zinc-400 mb-3 mx-auto flex items-center">
                 <span class="replaceable">{REPLACEMENT_STRING}</span>
                 <span>&nbsp;&rarr;&nbsp;</span>
-                <span contenteditable class="break-all text-zinc-300 rounded hover:bg-zinc-500/20 border-transparent hover:border-zinc-400 outline-none focus:border-blue-400 focus:bg-zinc-500/20 transition-colors duration-100 border px-1" 
+                <span contenteditable spellcheck="false" class="break-all text-zinc-300 rounded hover:bg-zinc-500/20 border-transparent hover:border-zinc-400 outline-none focus:border-blue-400 focus:bg-zinc-500/20 transition-colors duration-100 border px-1" 
                 bind:innerHTML={contentToSave} on:input={(e) => {let content = e.target.innerHTML; content = escapeHtml(content)}}
                 style="min-width: 10px;"
                 ></span>
@@ -411,7 +412,7 @@ style="--UIScale: {options.UIScale.value}"
                 {#each Object.entries(cardModelFieldsData) as [fieldTitle, fieldDetails]}
                     <div class="flex align-middle mb-0.5 items-center">
                         <label for={'field-'+fieldTitle} class="mr-2">{fieldTitle}</label>
-                        <!-- <small class="text-[0.6rem] text-zinc-400">{#if fieldDetails.shouldSave}This field will stay saved{/if}</small> -->
+                        <small class="text-[0.6rem] text-zinc-400">{#if fieldDetails.shouldSave}field's content will be reused{/if}</small>
                     </div>
                     <div class="relative w-full rounded mb-3" data-fieldName={fieldTitle} id={fieldTitle}>
                         <textarea rows="1" id='field-{fieldTitle}' on:input={handleFieldInput} bind:value={fieldDetails.value} data-fieldName={fieldTitle} class="peer bg-transparent w-full overflow-hidden resize-none break-all relative top-0 left-0 webkit-text-transparent px-1 border border-transparent appearance-none outline-none rounded-[0.3rem]"></textarea>
@@ -420,7 +421,7 @@ style="--UIScale: {options.UIScale.value}"
                     </div>
                 {/each}
                 <div class="opacity-0 block mb-0.5">&nbsp;</div>
-                <button type="submit" class="w-full rounded-[0.3rem] bg-zinc-500/20 border border-zinc-600 text-sm py-1 appearance-none outline-none enabled:hover:border-blue-400 enabled:hover:text-blue-400 focus:border-blue-400 focus:text-blue-400 shadow-none focus:shadow-inner disabled:opacity-80 disabled-border-zinc-600 transition-colors duration-100" disabled={!canSubmit || undefined}>Add!</button>
+                <button type="submit" class="w-full rounded-[0.3rem] bg-zinc-500/20 border border-zinc-600 text-sm py-1 appearance-none outline-none enabled:hover:border-blue-400 enabled:hover:text-blue-400 focus:border-blue-400 focus:text-blue-400 shadow-none focus:shadow-inner disabled:opacity-80 disabled-border-zinc-600 transition-colors duration-100" disabled={!canSubmit || undefined}>{wasSubmitSuccessful ? "Added" : "Add"}!</button>
             </form>
         </div>
     </div>
