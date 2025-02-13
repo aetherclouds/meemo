@@ -20,7 +20,7 @@ export const DEFAULT_OPTIONS = {
         value: 1
     },
     distanceToMouse: {
-        description: 'Distance between the hover utility and the cursor, in pixels',
+        description: 'Distance between the hover utility and the cursor',
         type: 'float',
         value: 8
     },

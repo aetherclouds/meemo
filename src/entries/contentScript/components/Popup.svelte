@@ -139,7 +139,7 @@
             // console.log('fieldData',cardModelFieldsData)
             syncFields(cardModelFieldsData)
         } else {
-            handleAnkiError(new AnkiResponseError())
+            handleAnkiError(new AnkiResponseZError())
         }
         canSubmit = true
     }
@@ -369,7 +369,7 @@ style="--UIScale: {options.UIScale.value}"
             {/if}
             {#if contentToSave != undefined}
             <div class="text-xs text-zinc-400 mb-3 mx-auto flex items-center">
-                <span class="replaceable">{REPLACEMENT_STRING}</span>
+                <span class="replaceable flex-none">{REPLACEMENT_STRING}</span>
                 <span>&nbsp;&rarr;&nbsp;</span>
                 <span contenteditable spellcheck="false" class="break-all text-zinc-300 rounded hover:bg-zinc-500/20 border-transparent hover:border-zinc-400 outline-none focus:border-blue-400 focus:bg-zinc-500/20 transition-colors duration-100 border px-1" 
                 bind:innerHTML={contentToSave} on:input={(e) => {let content = e.target.innerHTML; content = escapeHtml(content)}}
@@ -377,7 +377,7 @@ style="--UIScale: {options.UIScale.value}"
                 ></span>
             </div>
             {/if}
-            <form action="" class="text-zinc-300 text-sm" on:submit|preventDefault={handleSubmit} id="leForm">
+            <form class="text-zinc-300 text-sm" on:submit|preventDefault={handleSubmit} id="leForm">
                 <div class="w-full grid grid-cols-2 mb-3">
                     <div class="pr-2">
                         <label for="deckName" class="block mb-0.5 label-on-focus">Card Deck</label>

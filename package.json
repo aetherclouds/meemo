@@ -6,7 +6,6 @@
   "description": "Language learning swiss army knife",
   "license": "MIT",
   "type": "module",
-
   "scripts": {
     "build:ffox": "export TARGET_BROWSER=firefox; vite build",
     "build:chrm": "export TARGET_BROWSER=chrome; vite build",
@@ -15,16 +14,16 @@
     "dev:chrm": "export TARGET_BROWSER=chrome; vite"
   },
   "devDependencies": {
-    "@samrum/vite-plugin-web-extension": "^5.0.0",
-    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "@samrum/vite-plugin-web-extension": "^5.1.1",
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@types/chrome": "^0.0.254",
-    "@types/webextension-polyfill": "^0.10.6",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "svelte": "^4.2.5",
-    "svelte-preprocess": "^5.1.0",
-    "tailwindcss": "^3.4.3",
-    "vite": "^5.0.0",
-    "web-ext": "^7.8.0"
+    "@types/webextension-polyfill": "^0.10.7",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
+    "svelte": "^4.2.19",
+    "svelte-preprocess": "^5.1.4",
+    "tailwindcss": "^3.4.17",
+    "vite": "^5.4.14",
+    "web-ext": "^7.12.0"
   }
 }
