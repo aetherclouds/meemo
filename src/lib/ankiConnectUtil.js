@@ -15,12 +15,11 @@ export class AnkiResponseError extends Error {
 export async function ankiRequestThroughBg(action, params={}) {
   const response = (await chrome.runtime.sendMessage({type: 'runAnkiRequest', data: {action, params}})).response
   if (response.error) {
-    // console.error(response.error)
     switch (response.error) {
       case 'AnkiConnectionError':
-        throw new AnkiConnectionError()
+        throw new AnkiConnectionError(response.message)
       case 'AnkiResponseError':
-        throw new AnkiResponseError()
+        throw new AnkiResponseError(response.message)
       default:
         throw new Error(response.error.name)
     }
@@ -39,7 +38,7 @@ export async function ankiRequest(action, params={}, version=6) {
     body: JSON.stringify(data)
   }).then(async promisedResponse => { 
     if (!promisedResponse.ok) {
-      throw new AnkiResponseError()
+      throw new AnkiResponseError("returned "+promisedResponse.status)
     } else {
       const response = await promisedResponse.json()
       if (response.result === null) {
@@ -52,7 +51,7 @@ export async function ankiRequest(action, params={}, version=6) {
     if (!(err instanceof AnkiResponseError)) {
       err = new AnkiConnectionError(err.response)
     }
-    return {response: null, error: err.name}
+    return {response: null, error: err.name, message: err.message}
   })
 }
 

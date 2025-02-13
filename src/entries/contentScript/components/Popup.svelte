@@ -25,7 +25,8 @@
     let cardDecks = []
     let cardModels = []
     let cardModelFieldsData = {}
-    let messageType = ''
+    let notificationType = ''
+    let notificationMessage
     let canSubmit = false
     let highlightWarnClose = false
     let wasSubmitSuccessful = false
@@ -58,10 +59,10 @@
                 }
 
                 if (!isFirstTime) {
-                    messageType = 'success'
-                  setTimeout(() => {messageType = ''}, 5000)
+                    notificationType = 'success'
+                  setTimeout(() => {notificationType = ''}, 5000)
                 } else {
-                    messageType = ''
+                    notificationType = ''
                 }
 
                 // load synced options
@@ -80,16 +81,17 @@
 
     let secsUntilRetry = 0
     function handleAnkiError(error, callback) {
-        console.error('meemo:', error)
         switch (error.constructor) {
-            case AnkiConnectionError:
-            messageType = 'connection'
+        case AnkiConnectionError:
+            notificationType = 'connectionError'
+            notificationMessage = error.message
             break
         case AnkiResponseError:
-            messageType = 'response'
+            notificationType = 'responseError'
+            notificationMessage = error.message
             break
         default:
-            messageType = 'unknown'
+            notificationType = 'unknown'
             break
         }
 
@@ -122,14 +124,6 @@
         let callbackResult
         try {
             callbackResult = await addNote(formData.get('deckName'), formData.get('modelName'), fieldsValuesReplaced)
-        } catch (err) {
-            messageType = 'response'
-            setTimeout(() => {
-                messageType = ''
-            }, 5000)
-        }    
-        if (callbackResult) {
-            // console.log('callback:', callbackResult)
             wasSubmitSuccessful = true
             setTimeout(() => {
                 wasSubmitSuccessful = false
@@ -138,8 +132,12 @@
             syncDeckAndModelChoices(formData.get('deckName'), formData.get('modelName'))
             // console.log('fieldData',cardModelFieldsData)
             syncFields(cardModelFieldsData)
-        } else {
-            handleAnkiError(new AnkiResponseZError())
+        } catch (err) {
+            notificationType = 'responseError'
+            setTimeout(() => {
+                notificationType = ''
+            }, 5000)
+            handleAnkiError(err)
         }
         canSubmit = true
     }
@@ -302,9 +300,9 @@ style="--UIScale: {options.UIScale.value}"
         {isPopupBeingDragged  ? 
             'shadow-xl shadow-black/10'
             : 'shadow-sm ' 
-            +  ((wasSubmitSuccessful || messageType=='success') ? 
+            +  ((wasSubmitSuccessful || notificationType=='success') ? 
                 'shadow-green-400'
-                : (messageType ?
+                : (notificationType ?
                     'shadow-red-400'
                     : '' ))
         }
@@ -315,8 +313,8 @@ style="--UIScale: {options.UIScale.value}"
         'shadow-xl shadow-black/10'
         : 'shadow-sm '
     }
-    {messageType ? 
-        (messageType!='success') && !wasSubmitSuccessful ? 
+    {notificationType ? 
+        (notificationType!='success') && !wasSubmitSuccessful ? 
             'border-red-400'
             : 'border-green-400' 
         : (wasSubmitSuccessful) ? 
@@ -347,22 +345,22 @@ style="--UIScale: {options.UIScale.value}"
             <h1 class="text-blue-gradient font-bold text-xl mx-auto mb-5">
                 Add2Anki
             </h1>
-            {#if messageType}
-            <div class="rounded-[0.3rem] border {messageType == 'success' ? 'border-green-400' : 'border-red-400'} text-zinc-300 px-2 py-1 mb-3 flex flex-col h-max text-xs hyphens-auto" style="transition: border-color 500ms, height 500ms;"
+            {#if notificationType}
+            <div class="rounded-[0.3rem] border {notificationType == 'success' ? 'border-green-400' : 'border-red-400'} text-zinc-300 px-2 py-1 mb-3 flex flex-col h-max text-xs hyphens-auto" style="transition: border-color 500ms, height 500ms;"
                 transition:horizontalSlideDisconsiderBorder={{axis: 'y', duration: options.useMotion.value ? 500 : 0}}
             >
                 <div>
-                {#if messageType == 'connection'}
+                {#if notificationType == 'connectionError'}
                     There has been a connection error. Make sure that Anki is open, and that <a class="text-blue-400 underline" href="https://ankiweb.net/shared/info/2055492159" target="_blank">AnkiConnect</a> is installed & running.
-                {:else if messageType == 'response'}
-                    There has been a response error. AnkiConnect is running but did not respond properly.
-                {:else if messageType == 'unknown'}
-                    There has been an unknown error. ¯\_(ツ)_/¯
-                {:else if messageType == 'success'}
+                {:else if notificationType == 'responseError'}
+                    There has been a response error. AnkiConnect is running but did not respond properly {notificationMessage && "("+notificationMessage+")"}
+                {:else if notificationType == 'unknown'}
+                    There has been an unknown error. ¯\_(ツ)_/¯ {notificationMessage && "("+notificationMessage+")"}
+                {:else if notificationType == 'success'}
                     Successfully reconnected with Anki!
                 {/if}
                 </div>
-                {#if messageType == 'connection'}
+                {#if notificationType == 'connectionError'}
                 <div class="block text-[0.5rem] text-zinc-400">retrying in {secsUntilRetry} second(s) . . .</div>
                 {/if}
             </div>
